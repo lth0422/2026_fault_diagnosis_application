@@ -42,9 +42,12 @@ class _HsvSettingPageState extends State<HsvSettingPage> {
   void _confirm() {
     context.read<DiagnosisSession>().setHsvRange(
           HsvRange(
-            hMin: _hMin, hMax: _hMax,
-            sMin: _sMin, sMax: _sMax,
-            vMin: _vMin, vMax: _vMax,
+            hMin: _hMin,
+            hMax: _hMax,
+            sMin: _sMin,
+            sMax: _sMax,
+            vMin: _vMin,
+            vMax: _vMax,
           ),
         );
     Navigator.pushNamed(context, MarkerCenterPage.routeName);
@@ -68,16 +71,26 @@ class _HsvSettingPageState extends State<HsvSettingPage> {
             Expanded(
               child: ListView(
                 children: [
-                  _slider('H min', _hMin, 179, (v) => setState(() => _hMin = v)),
-                  _slider('H max', _hMax, 179, (v) => setState(() => _hMax = v)),
-                  _slider('S min', _sMin, 255, (v) => setState(() => _sMin = v)),
-                  _slider('S max', _sMax, 255, (v) => setState(() => _sMax = v)),
-                  _slider('V min', _vMin, 255, (v) => setState(() => _vMin = v)),
-                  _slider('V max', _vMax, 255, (v) => setState(() => _vMax = v)),
+                  _slider(
+                      'H min', _hMin, 179, (v) => setState(() => _hMin = v)),
+                  _slider(
+                      'H max', _hMax, 179, (v) => setState(() => _hMax = v)),
+                  _slider(
+                      'S min', _sMin, 255, (v) => setState(() => _sMin = v)),
+                  _slider(
+                      'S max', _sMax, 255, (v) => setState(() => _sMax = v)),
+                  _slider(
+                      'V min', _vMin, 255, (v) => setState(() => _vMin = v)),
+                  _slider(
+                      'V max', _vMax, 255, (v) => setState(() => _vMax = v)),
                 ],
               ),
             ),
-            PrimaryButton(label: '확인', onPressed: _confirm),
+            PrimaryButton(
+              label: '확인',
+              liftFromSystemNav: true,
+              onPressed: _confirm,
+            ),
           ],
         ),
       ),

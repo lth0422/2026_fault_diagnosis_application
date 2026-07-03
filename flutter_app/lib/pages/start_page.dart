@@ -39,6 +39,7 @@ class StartPage extends StatelessWidget {
             PrimaryButton(
               label: '시작하기',
               icon: Icons.play_arrow,
+              liftFromSystemNav: true,
               onPressed: () =>
                   Navigator.pushNamed(context, VideoSelectPage.routeName),
             ),

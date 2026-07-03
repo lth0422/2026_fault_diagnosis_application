@@ -58,23 +58,30 @@ class _MarkerCenterPageState extends State<MarkerCenterPage> {
               label: _roiSize.toInt().toString(),
               onChanged: (v) => setState(() => _roiSize = v),
             ),
-            Row(
-              children: [
-                const Expanded(
-                  child: OutlinedButton(
-                    onPressed: null, // 플레이스홀더: 실제 마커 제거 미구현
-                    child: Text('되돌리기'),
+            SafeArea(
+              top: false,
+              minimum: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: SizedBox(
+                      height: 52,
+                      child: OutlinedButton(
+                        onPressed: null, // 플레이스홀더: 실제 마커 제거 미구현
+                        child: Text('되돌리기'),
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: PrimaryButton(
-                    label: '확인',
-                    onPressed: () => Navigator.pushNamed(
-                        context, DisplacementPage.routeName),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: PrimaryButton(
+                      label: '확인',
+                      onPressed: () => Navigator.pushNamed(
+                          context, DisplacementPage.routeName),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

@@ -81,6 +81,7 @@ class FaultDiagnosisPage extends StatelessWidget {
             PrimaryButton(
               label: '완료',
               icon: Icons.check,
+              liftFromSystemNav: true,
               onPressed: () {
                 context.read<DiagnosisSession>().reset();
                 Navigator.popUntil(

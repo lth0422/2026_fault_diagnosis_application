@@ -25,7 +25,8 @@ class RoiSettingPage extends StatelessWidget {
               step: 4,
               total: 9,
               title: 'ROI 설정',
-              description: '첫 프레임 위에서 관심 영역(ROI)을 지정합니다. (예시 표시, 실제 영상은 이후 마일스톤)',
+              description:
+                  '첫 프레임 위에서 관심 영역(ROI)을 지정합니다. (예시 표시, 실제 영상은 이후 마일스톤)',
             ),
             Expanded(
               child: Center(
@@ -59,6 +60,7 @@ class RoiSettingPage extends StatelessWidget {
             const SizedBox(height: 8),
             PrimaryButton(
               label: '완료',
+              liftFromSystemNav: true,
               onPressed: () =>
                   Navigator.pushNamed(context, MarkerColorPage.routeName),
             ),

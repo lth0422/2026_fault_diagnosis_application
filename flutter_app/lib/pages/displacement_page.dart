@@ -98,9 +98,10 @@ class _DisplacementPageState extends State<DisplacementPage> {
             PrimaryButton(
               label: '진단하기',
               icon: Icons.analytics,
+              liftFromSystemNav: true,
               onPressed: _done
-                  ? () => Navigator.pushNamed(
-                      context, FaultDiagnosisPage.routeName)
+                  ? () =>
+                      Navigator.pushNamed(context, FaultDiagnosisPage.routeName)
                   : null,
             ),
           ],

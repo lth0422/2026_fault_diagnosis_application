@@ -43,8 +43,12 @@ class _VideoInfoPageState extends State<VideoInfoPage> {
     final height = int.tryParse(_heightController.text);
     final fps = double.tryParse(_fpsController.text);
 
-    if (width == null || height == null || fps == null ||
-        width <= 0 || height <= 0 || fps <= 0) {
+    if (width == null ||
+        height == null ||
+        fps == null ||
+        width <= 0 ||
+        height <= 0 ||
+        fps <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('올바른 값을 입력해주세요')),
       );
@@ -119,7 +123,11 @@ class _VideoInfoPageState extends State<VideoInfoPage> {
                 ],
               ),
             ),
-            PrimaryButton(label: '다음', onPressed: _confirm),
+            PrimaryButton(
+              label: '다음',
+              liftFromSystemNav: true,
+              onPressed: _confirm,
+            ),
           ],
         ),
       ),

@@ -53,6 +53,7 @@ class VideoSelectPage extends StatelessWidget {
             ),
             PrimaryButton(
               label: '다음',
+              liftFromSystemNav: true,
               onPressed: () =>
                   Navigator.pushNamed(context, VideoInfoPage.routeName),
             ),
