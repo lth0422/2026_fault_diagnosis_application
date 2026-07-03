@@ -1,0 +1,26 @@
+{
+  "installationFolder": "/home/kseorang/Github/app-int/X-twice/OpenCV/build/intermediates/prefab_package/debug/prefab",
+  "gradlePath": ":OpenCV",
+  "packageInfo": {
+    "packageName": "OpenCV",
+    "packageSchemaVersion": 2,
+    "packageDependencies": [],
+    "modules": [
+      {
+        "moduleName": "opencv_jni_shared",
+        "moduleHeaders": "/home/kseorang/Github/app-int/X-twice/OpenCV/native/jni/include",
+        "moduleExportLibraries": [],
+        "abis": [
+          {
+            "abiName": "x86_64",
+            "abiApi": 21,
+            "abiNdkMajor": 25,
+            "abiStl": "c++_shared",
+            "abiLibrary": "/home/kseorang/Github/app-int/X-twice/OpenCV/.cxx/Debug/2x6j294r/x86_64/libopencv_jni_shared.a",
+            "abiAndroidGradleBuildJsonFile": "/home/kseorang/Github/app-int/X-twice/OpenCV/.cxx/Debug/2x6j294r/x86_64/android_gradle_build.json"
+          }
+        ]
+      }
+    ]
+  }
+}
