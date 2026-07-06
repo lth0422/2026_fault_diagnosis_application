@@ -1,7 +1,7 @@
 /// 결함 진단 모델의 출력을 표현하는 모델.
 ///
 /// 클래스 순서는 반드시 **B, H, IR, OR** 를 따른다.
-/// 1차 마일스톤에서는 mock 확률값으로만 채워진다.
+/// Android에서는 내장 PyTorch Lite 모델의 softmax 확률로 채워진다.
 class DiagnosisResult {
   /// 클래스 레이블. 기본 순서: B, H, IR, OR.
   final List<String> classLabels;
@@ -9,9 +9,13 @@ class DiagnosisResult {
   /// 각 클래스에 대한 확률(0.0 ~ 1.0). [classLabels]와 인덱스가 일치한다.
   final List<double> probabilities;
 
+  /// softmax 전 모델 원본 출력값.
+  final List<double> logits;
+
   const DiagnosisResult({
     this.classLabels = const ['B', 'H', 'IR', 'OR'],
     this.probabilities = const [0, 0, 0, 0],
+    this.logits = const [],
   });
 
   /// 가장 확률이 높은 클래스의 인덱스.

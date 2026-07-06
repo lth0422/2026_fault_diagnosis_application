@@ -8,13 +8,11 @@ import '../models/displacement_result.dart';
 import '../services/displacement_service.dart';
 import '../widgets/step_header.dart';
 import '../widgets/primary_button.dart';
+import '../widgets/top_notice.dart';
 import 'fault_diagnosis_page.dart';
 
-/// STEP 8 — 변위 계산 (mock 진행 시뮬레이션).
-/// (기존 Android: DisplacementActivity — 백그라운드로 변위 측정, 진행률 표시,
-///  완료 후 추론 버튼 노출 → FaultDiagnosisActivity)
-///
-/// ⚠️ 실제 변위 계산은 미구현. 진행률은 시뮬레이션이며 결과는 mock 데이터.
+/// STEP 8 — 변위 계산.
+/// (기존 Android: DisplacementActivity — 백그라운드로 변위 측정, 완료 후 추론 버튼 노출)
 class DisplacementPage extends StatefulWidget {
   const DisplacementPage({super.key});
 
@@ -25,41 +23,84 @@ class DisplacementPage extends StatefulWidget {
 }
 
 class _DisplacementPageState extends State<DisplacementPage> {
-  double _progress = 0;
-  bool _done = false;
-  Timer? _timer;
+  bool _isComputing = false;
   DisplacementResult? _result;
+  DisplacementProgress? _progress;
+  StreamSubscription<DisplacementProgress>? _progressSubscription;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _startMockMeasurement();
-  }
-
-  void _startMockMeasurement() {
-    _timer = Timer.periodic(const Duration(milliseconds: 120), (timer) {
-      setState(() {
-        _progress += 0.08;
-        if (_progress >= 1.0) {
-          _progress = 1.0;
-          _done = true;
-          _result = DisplacementService().mockResult();
-          context.read<DiagnosisSession>().setDisplacementResult(_result!);
-          timer.cancel();
-        }
-      });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _computeDisplacement();
     });
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _progressSubscription?.cancel();
     super.dispose();
+  }
+
+  Future<void> _computeDisplacement() async {
+    final session = context.read<DiagnosisSession>();
+    await _progressSubscription?.cancel();
+    final service = DisplacementService();
+    _progressSubscription = service.watchProgress().listen((progress) {
+      if (!mounted) {
+        return;
+      }
+      setState(() => _progress = progress);
+    });
+
+    setState(() {
+      _isComputing = true;
+      _errorMessage = null;
+      _result = null;
+      _progress = null;
+    });
+
+    try {
+      final result = await service.computeDisplacement(session);
+      if (!mounted) {
+        return;
+      }
+      session.setDisplacementResult(result);
+      setState(() {
+        _result = result;
+        _isComputing = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isComputing = false;
+        _errorMessage = '변위 계산 실패: $error';
+      });
+    } finally {
+      await _progressSubscription?.cancel();
+      _progressSubscription = null;
+    }
+  }
+
+  Future<void> _shareCsv(DisplacementResult result) async {
+    try {
+      await DisplacementService().shareCsv(result);
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      showTopNotice(context, 'CSV 내보내기 실패: $error', icon: Icons.error_outline);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final result = _result;
+
     return Scaffold(
       appBar: AppBar(title: const Text('변위 계산')),
       body: Padding(
@@ -71,25 +112,76 @@ class _DisplacementPageState extends State<DisplacementPage> {
               step: 8,
               total: 9,
               title: '변위 계산 (DisplacementZ)',
-              description: '마커 추적으로부터 변위를 계산합니다. (현재: mock 진행/데이터)',
+              description: 'OpenCV 마커 추적으로부터 모델 입력 변위를 계산합니다.',
             ),
             Expanded(
               child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (!_done) ...[
+                    if (_isComputing) ...[
                       const CircularProgressIndicator(),
                       const SizedBox(height: 16),
-                      Text('변위 측정 중... ${(_progress * 100).toInt()}%'),
-                    ] else ...[
-                      Icon(Icons.check_circle,
-                          size: 64, color: theme.colorScheme.primary),
+                      const Text('변위 측정 중...'),
                       const SizedBox(height: 12),
-                      Text('저장 완료! (${_result?.length ?? 0}개 데이터)'),
+                      _progressPanel(theme),
+                    ] else if (_errorMessage != null) ...[
+                      Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: theme.colorScheme.error,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        _errorMessage!,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      OutlinedButton.icon(
+                        onPressed: _computeDisplacement,
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('다시 계산'),
+                      ),
+                    ] else if (result != null) ...[
+                      Icon(
+                        Icons.check_circle,
+                        size: 64,
+                        color: theme.colorScheme.primary,
+                      ),
+                      const SizedBox(height: 12),
+                      Text('계산 완료! (${result.length}개 데이터)'),
                       const SizedBox(height: 4),
-                      Text('모델 입력 형상: [1, 1, 2048]',
-                          style: theme.textTheme.bodySmall),
+                      Text(
+                        '모델 입력 형상: [1, 1, 2048]',
+                        style: theme.textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Z 범위: ${result.minValue.toStringAsFixed(2)} ~ ${result.maxValue.toStringAsFixed(2)} px',
+                        style: theme.textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '검출 ${result.detectedFrameCount}/${result.rawLength}, '
+                        '실패 ${result.missedFrameCount}, '
+                        'Z 표준편차 ${result.zStdDev.toStringAsFixed(3)}',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodySmall,
+                      ),
+                      if (result.csvDisplayName != null) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          'CSV 저장: ${result.csvDisplayName}',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 8),
+                        OutlinedButton.icon(
+                          onPressed: () => _shareCsv(result),
+                          icon: const Icon(Icons.ios_share),
+                          label: const Text('CSV 내보내기'),
+                        ),
+                      ],
                     ],
                   ],
                 ),
@@ -99,13 +191,43 @@ class _DisplacementPageState extends State<DisplacementPage> {
               label: '진단하기',
               icon: Icons.analytics,
               liftFromSystemNav: true,
-              onPressed: _done
+              onPressed: result != null
                   ? () =>
                       Navigator.pushNamed(context, FaultDiagnosisPage.routeName)
                   : null,
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _progressPanel(ThemeData theme) {
+    final progress = _progress;
+    if (progress == null) {
+      return const SizedBox(
+        width: 220,
+        child: LinearProgressIndicator(),
+      );
+    }
+
+    final percent = (progress.progress * 100).clamp(0, 100).toStringAsFixed(1);
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 320),
+      child: Column(
+        children: [
+          LinearProgressIndicator(value: progress.progress.clamp(0, 1)),
+          const SizedBox(height: 8),
+          Text(
+            '$percent%  (${progress.processed}/${progress.total})',
+            style: theme.textTheme.bodySmall,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            '검출 ${progress.detected}, 실패 ${progress.missed}',
+            style: theme.textTheme.bodySmall,
+          ),
+        ],
       ),
     );
   }

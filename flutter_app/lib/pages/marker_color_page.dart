@@ -15,15 +15,54 @@ class MarkerColorPage extends StatelessWidget {
 
   /// 기존 Android COLOR_RANGES 와 동일한 색상별 HSV 프리셋.
   static const Map<String, HsvRange> colorRanges = {
-    'BLUE': HsvRange(hMin: 100, hMax: 140, sMin: 150, sMax: 255, vMin: 50, vMax: 255),
-    'GREEN': HsvRange(hMin: 35, hMax: 85, sMin: 150, sMax: 255, vMin: 50, vMax: 255),
-    'WHITE': HsvRange(hMin: 0, hMax: 180, sMin: 0, sMax: 30, vMin: 200, vMax: 255),
-    'YELLOW': HsvRange(hMin: 20, hMax: 35, sMin: 150, sMax: 255, vMin: 50, vMax: 255),
-    'RED': HsvRange(hMin: 160, hMax: 180, sMin: 150, sMax: 255, vMin: 50, vMax: 255),
+    'BLUE': HsvRange(
+      hMin: 100,
+      hMax: 140,
+      sMin: 150,
+      sMax: 255,
+      vMin: 50,
+      vMax: 255,
+    ),
+    'GREEN': HsvRange(
+      hMin: 35,
+      hMax: 85,
+      sMin: 150,
+      sMax: 255,
+      vMin: 50,
+      vMax: 255,
+    ),
+    'WHITE': HsvRange(
+      hMin: 0,
+      hMax: 180,
+      sMin: 0,
+      sMax: 30,
+      vMin: 200,
+      vMax: 255,
+    ),
+    'YELLOW': HsvRange(
+      hMin: 20,
+      hMax: 35,
+      sMin: 150,
+      sMax: 255,
+      vMin: 50,
+      vMax: 255,
+    ),
+    'RED': HsvRange(
+      hMin: 160,
+      hMax: 180,
+      sMin: 150,
+      sMax: 255,
+      vMin: 50,
+      vMax: 255,
+    ),
   };
 
-  void _selectColor(BuildContext context, String key) {
-    context.read<DiagnosisSession>().setHsvRange(colorRanges[key]!);
+  void _selectColor(BuildContext context, _ColorSpec spec) {
+    context.read<DiagnosisSession>().setMarkerColor(
+          key: spec.key,
+          label: spec.label,
+          hsvRange: colorRanges[spec.key]!,
+        );
     Navigator.pushNamed(context, HsvSettingPage.routeName);
   }
 
@@ -57,17 +96,29 @@ class MarkerColorPage extends StatelessWidget {
                 itemBuilder: (context, i) {
                   final spec = buttons[i];
                   return SizedBox(
-                    height: 56,
+                    height: 72,
                     child: FilledButton(
                       style: FilledButton.styleFrom(
                         backgroundColor: spec.color,
-                        foregroundColor:
-                            spec.color.computeLuminance() > 0.5
-                                ? Colors.black
-                                : Colors.white,
+                        foregroundColor: spec.color.computeLuminance() > 0.5
+                            ? Colors.black
+                            : Colors.white,
                       ),
-                      onPressed: () => _selectColor(context, spec.key),
-                      child: Text(spec.label),
+                      onPressed: () => _selectColor(context, spec),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(spec.label),
+                          const SizedBox(height: 2),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              _formatRange(colorRanges[spec.key]!),
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -77,6 +128,12 @@ class MarkerColorPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatRange(HsvRange range) {
+    return 'H ${range.hMin.toInt()}-${range.hMax.toInt()} / '
+        'S ${range.sMin.toInt()}-${range.sMax.toInt()} / '
+        'V ${range.vMin.toInt()}-${range.vMax.toInt()}';
   }
 }
 

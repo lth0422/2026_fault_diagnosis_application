@@ -15,6 +15,8 @@ import 'diagnosis_result.dart';
 class DiagnosisSession extends ChangeNotifier {
   VideoInfo? videoInfo;
   RoiInfo? roiInfo;
+  String? markerColorKey;
+  String? markerColorLabel;
   HsvRange? hsvRange;
   List<MarkerInfo> markers = <MarkerInfo>[];
   DisplacementResult? displacementResult;
@@ -32,6 +34,17 @@ class DiagnosisSession extends ChangeNotifier {
 
   void setHsvRange(HsvRange value) {
     hsvRange = value;
+    notifyListeners();
+  }
+
+  void setMarkerColor({
+    required String key,
+    required String label,
+    required HsvRange hsvRange,
+  }) {
+    markerColorKey = key;
+    markerColorLabel = label;
+    this.hsvRange = hsvRange;
     notifyListeners();
   }
 
@@ -54,6 +67,8 @@ class DiagnosisSession extends ChangeNotifier {
   void reset() {
     videoInfo = null;
     roiInfo = null;
+    markerColorKey = null;
+    markerColorLabel = null;
     hsvRange = null;
     markers = <MarkerInfo>[];
     displacementResult = null;

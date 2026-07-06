@@ -18,7 +18,9 @@ Claude Code 플러그인은 **대화 컨텍스트가 세션마다 초기화**된
 - 9개 페이지 흐름: StartPage → VideoSelectPage → VideoInfoPage → RoiSettingPage
   → MarkerColorPage → HsvSettingPage → MarkerCenterPage → DisplacementPage → FaultDiagnosisPage
 - 모델 입력: DisplacementZ [1,1,2048], 클래스: B/H/IR/OR
-- 1차 마일스톤: UI 흐름 + mock 데이터만. OpenCV/PyTorch/MethodChannel 미구현.
+- 현재 Android 구현: 로컬 영상 선택, ROI/HSV 설정, OpenCV 변위 계산, 진행률 표시,
+  CSV 저장/내보내기, PyTorch Lite Fwdcnn7.ptl 모델 추론까지 구현.
+- iOS는 같은 Flutter UI와 MethodChannel 계약을 기준으로 실험 예정.
 CLAUDE.md와 docs/ 폴더를 먼저 읽어주세요.
 ```
 
@@ -107,12 +109,14 @@ Claude Code에게 한 번에 요청할 내용:
 | 전역 상태 | `flutter_app/lib/models/diagnosis_session.dart` |
 | 페이지들 | `flutter_app/lib/pages/` |
 | 데이터 모델 | `flutter_app/lib/models/` |
-| 서비스 (mock) | `flutter_app/lib/services/` |
+| 서비스 | `flutter_app/lib/services/` |
 | 공통 위젯 | `flutter_app/lib/widgets/` |
-| 네이티브 채널 stub | `flutter_app/lib/platform/native_diagnosis_channel.dart` |
+| Android 네이티브 채널 | `flutter_app/android/app/src/main/kotlin/com/example/fault_diagnosis_application/MainActivity.kt` |
 | 레거시 참조 | `legacy_android/X-twice-app_integration/.../com/example/useopencvwithcmakeandkotlin/` |
 | Activity→Page 매핑 | `docs/android_activity_mapping.md` |
 | 모델 I/O 사양 | `docs/model_io_spec.md` |
+| Android 이전 일지 | `docs/flutter_android_migration_report.md` |
+| iOS 대비 문서 | `docs/ios_porting_preparation.md` |
 
 ---
 
@@ -123,8 +127,11 @@ Claude Code에게 한 번에 요청할 내용:
 | 문서화 | 완료 |
 | Flutter 앱 골격 (9페이지) | 완료 |
 | 네비게이션 흐름 | 완료 |
-| mock DiagnosisResult / DisplacementResult | 완료 |
-| 실제 영상 선택 (file_picker) | 미구현 |
-| OpenCV ROI / HSV 처리 | 미구현 |
-| 마커 추적 / 변위 계산 | 미구현 |
-| PyTorch Mobile Lite 추론 연동 | 미구현 |
+| 실제 영상 선택 (Android 로컬 선택 + 캐시 복사) | 완료 |
+| OpenCV ROI / HSV 처리 | 완료 |
+| HSV 원본/검출 디버그 표시 | 완료 |
+| 마커 추적 / 변위 계산 | 완료 |
+| 변위 계산 진행률 표시 | 완료 |
+| CSV 저장 / 내보내기 | 완료 |
+| PyTorch Mobile Lite 추론 연동 | 완료 |
+| iOS 네이티브 영상 처리/모델 추론 | 예정 |

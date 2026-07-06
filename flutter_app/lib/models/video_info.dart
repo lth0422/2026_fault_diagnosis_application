@@ -6,6 +6,12 @@ class VideoInfo {
   /// 영상 파일 경로 (미선택 시 null).
   final String? path;
 
+  /// Android/iOS 파일 선택기가 제공한 원본 식별자(content URI 등).
+  final String? sourceUri;
+
+  /// 화면에 표시할 영상 파일명.
+  final String? displayName;
+
   /// 프레임 가로 픽셀 수.
   final int width;
 
@@ -23,6 +29,8 @@ class VideoInfo {
 
   const VideoInfo({
     this.path,
+    this.sourceUri,
+    this.displayName,
     this.width = 0,
     this.height = 0,
     this.fps = 0,
@@ -34,6 +42,8 @@ class VideoInfo {
 
   VideoInfo copyWith({
     String? path,
+    String? sourceUri,
+    String? displayName,
     int? width,
     int? height,
     double? fps,
@@ -42,6 +52,8 @@ class VideoInfo {
   }) {
     return VideoInfo(
       path: path ?? this.path,
+      sourceUri: sourceUri ?? this.sourceUri,
+      displayName: displayName ?? this.displayName,
       width: width ?? this.width,
       height: height ?? this.height,
       fps: fps ?? this.fps,
@@ -52,5 +64,5 @@ class VideoInfo {
 
   @override
   String toString() =>
-      'VideoInfo(path: $path, ${width}x$height, fps: $fps, frames: $frameCount)';
+      'VideoInfo(path: $path, sourceUri: $sourceUri, displayName: $displayName, ${width}x$height, fps: $fps, frames: $frameCount)';
 }

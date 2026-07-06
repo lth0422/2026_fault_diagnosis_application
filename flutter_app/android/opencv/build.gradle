@@ -1,0 +1,61 @@
+plugins {
+    id 'com.android.library'
+}
+
+def legacyOpenCvDir = file('../../../legacy_android/X-twice-app_integration/OpenCV')
+def legacyOpenCvCxxLibDir = new File(
+    legacyOpenCvDir,
+    'build/intermediates/merged_native_libs/debug/mergeDebugNativeLibs/out/lib'
+)
+def generatedJniLibsDir = new File(project.buildDir, 'generated/jniLibs')
+
+android {
+    namespace 'org.opencv'
+    compileSdk 36
+
+    defaultConfig {
+        minSdk 21
+        targetSdk 36
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    sourceSets {
+        main {
+            java {
+                srcDirs = [new File(legacyOpenCvDir, 'java/src')]
+                exclude '**/*.kt'
+            }
+            res.srcDirs = [new File(legacyOpenCvDir, 'java/res')]
+            jniLibs.srcDirs = [
+                new File(legacyOpenCvDir, 'native/libs'),
+                generatedJniLibsDir
+            ]
+            manifest.srcFile new File(legacyOpenCvDir, 'java/AndroidManifest.xml')
+        }
+    }
+}
+
+tasks.register('copyOpenCvCxxShared', Copy) {
+    from(legacyOpenCvCxxLibDir) {
+        include '**/libc++_shared.so'
+    }
+    into generatedJniLibsDir
+}
+
+tasks.named('preBuild') {
+    dependsOn tasks.named('copyOpenCvCxxShared')
+}
+
+tasks.configureEach { task ->
+    if (task.name.startsWith('compile') && task.name.endsWith('Kotlin')) {
+        task.enabled = false
+    }
+}

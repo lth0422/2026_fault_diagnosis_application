@@ -4,6 +4,312 @@
 
 ---
 
+## 2026-07-06 — 진행률 표시, HSV 디버그, CSV 공유, 상단 알림 개선
+
+**작업 내용**
+- 변위 계산 중 Android 네이티브에서 프레임 처리 진행률을 EventChannel로 전달하도록 구현.
+- `DisplacementPage`에서 진행률 막대, 처리 프레임 수, 검출/실패 프레임 수를 실시간 표시.
+- 변위 계산 완료 후 CSV 파일을 Android 공유 시트로 내보내는 버튼 추가.
+- `HsvSettingPage`에 원본/검출 이미지 전환 컨트롤 추가.
+- HSV 검출 픽셀 수, 전체 픽셀 수, 검출 비율을 막대와 수치로 표시.
+- 하단 버튼과 겹치던 SnackBar 알림을 제거하고 상단 MaterialBanner 기반 알림으로 교체.
+
+**생성/수정 파일**
+- `flutter_app/android/app/src/main/kotlin/com/example/fault_diagnosis_application/MainActivity.kt`
+- `flutter_app/lib/services/displacement_service.dart`
+- `flutter_app/lib/pages/displacement_page.dart`
+- `flutter_app/lib/pages/hsv_setting_page.dart`
+- `flutter_app/lib/pages/video_select_page.dart`
+- `flutter_app/lib/pages/video_info_page.dart`
+- `flutter_app/lib/pages/roi_setting_page.dart`
+- `flutter_app/lib/pages/marker_center_page.dart`
+- `flutter_app/lib/widgets/top_notice.dart`
+- `docs/development_log.md`
+
+**검증**
+- `dart format` 성공.
+- `flutter analyze` 성공.
+- `flutter test` 성공.
+- `flutter build apk --debug` 성공.
+- `adb install -r build/app/outputs/flutter-apk/app-debug.apk` 성공.
+- `adb shell am start -S -W ...`로 앱 실행 성공.
+
+## 2026-07-06 — 로컬 영상 선택기 및 H 쏠림 진단 지표 추가
+
+**작업 내용**
+- Android 영상 선택을 `file_picker` 기본 갤러리/포토 흐름 대신 네이티브 `ACTION_OPEN_DOCUMENT` 기반 로컬 파일 선택기로 교체.
+- 선택된 영상은 앱 캐시(`selected_videos`)로 복사한 뒤 OpenCV가 읽을 수 있는 로컬 파일 path를 사용하도록 변경.
+- 원본 content URI와 표시명을 보존하고, 가능한 경우 MediaStore/metadata에서 원본 영상명을 복원.
+- 변위 계산 결과에 원본 프레임 수, 마커 검출 성공/실패 프레임 수, DisplacementZ 표준편차를 추가.
+- 결함 진단 결과에 모델 softmax 전 logits를 추가해 모든 결과가 H로 치우치는 원인을 추적할 수 있도록 표시.
+
+**생성/수정 파일**
+- `flutter_app/android/app/src/main/kotlin/com/example/fault_diagnosis_application/MainActivity.kt`
+- `flutter_app/lib/models/video_info.dart`
+- `flutter_app/lib/models/displacement_result.dart`
+- `flutter_app/lib/models/diagnosis_result.dart`
+- `flutter_app/lib/services/file_service.dart`
+- `flutter_app/lib/services/video_service.dart`
+- `flutter_app/lib/services/displacement_service.dart`
+- `flutter_app/lib/services/diagnosis_service.dart`
+- `flutter_app/lib/pages/video_info_page.dart`
+- `flutter_app/lib/pages/displacement_page.dart`
+- `flutter_app/lib/pages/fault_diagnosis_page.dart`
+- `docs/development_log.md`
+
+**검증**
+- `dart format` 성공.
+- `flutter analyze` 성공.
+- `flutter test` 성공.
+- `flutter build apk --debug` 성공.
+- `adb install -r build/app/outputs/flutter-apk/app-debug.apk` 성공.
+- `adb shell am start -S -W ...`로 앱 실행 성공.
+
+## 2026-07-06 — CSV 저장/내보내기 및 내장 모델 추론 연결
+
+**작업 내용**
+- 레거시 `DisplacementActivity`의 CSV 형식을 따라 변위 계산 완료 시 CSV를 저장하도록 구현.
+- CSV 헤더를 `# FPS`, `Frame,Time(s),DisplacementX(px),DisplacementZ(px)` 형식으로 유지.
+- Android 10 이상에서는 `Downloads/OpenCVDisplacement`에 MediaStore 방식으로 CSV를 저장.
+- `DisplacementResult`에 CSV URI와 표시용 저장 위치를 추가하고, 변위 계산 완료 화면에 저장 위치를 표시.
+- 레거시 `Fwdcnn7.ptl` 모델을 Flutter Android asset으로 포함.
+- Android 앱에 `org.pytorch:pytorch_android_lite:1.13.1` 의존성과 `.ptl` 압축 제외 설정 추가.
+- `fault_diagnosis/model` MethodChannel을 추가해 PyTorch Lite 모델 추론을 네이티브에서 실행.
+- `DiagnosisService`와 `FaultDiagnosisPage`를 mock 결과 대신 실제 모델 추론 흐름으로 교체.
+- OpenCV와 PyTorch Lite가 함께 가져오는 `libc++_shared.so` 중복 패키징 문제를 `pickFirst`로 해결.
+
+**생성/수정 파일**
+- `flutter_app/android/app/build.gradle.kts`
+- `flutter_app/android/app/src/main/assets/Fwdcnn7.ptl`
+- `flutter_app/android/app/src/main/kotlin/com/example/fault_diagnosis_application/MainActivity.kt`
+- `flutter_app/lib/models/diagnosis_result.dart`
+- `flutter_app/lib/models/displacement_result.dart`
+- `flutter_app/lib/services/diagnosis_service.dart`
+- `flutter_app/lib/services/displacement_service.dart`
+- `flutter_app/lib/pages/displacement_page.dart`
+- `flutter_app/lib/pages/fault_diagnosis_page.dart`
+- `docs/development_log.md`
+
+**검증**
+- `dart format` 성공.
+- `flutter analyze` 성공.
+- `flutter test` 성공.
+- `flutter build apk --debug` 성공.
+- `adb install -r build/app/outputs/flutter-apk/app-debug.apk` 성공.
+- `adb shell am start -S -W ...`로 앱 실행 성공.
+
+## 2026-07-06 — Android OpenCV 기반 실제 변위 계산 구현
+
+**작업 내용**
+- `DisplacementPage`의 mock 진행률/데이터 생성을 제거하고 실제 변위 계산 요청 화면으로 교체.
+- Android `fault_diagnosis/displacement` MethodChannel을 추가해 Flutter에서 네이티브 OpenCV 계산을 호출.
+- 네이티브에서 선택 영상의 프레임을 읽고, ROI 내부의 마커 추적 박스에 HSV `inRange`와 morphology를 적용.
+- mask moments로 마커 중심을 프레임별 추적하고, Y 좌표 평균을 제거한 DisplacementZ 시계열을 생성.
+- 모델 입력 길이에 맞춰 DisplacementZ를 2048개 값으로 리샘플링해 `DiagnosisSession`에 저장.
+- 계산 실패 시 화면에서 에러 메시지와 다시 계산 버튼을 표시하도록 처리.
+
+**생성/수정 파일**
+- `flutter_app/android/app/src/main/kotlin/com/example/fault_diagnosis_application/MainActivity.kt`
+- `flutter_app/lib/services/displacement_service.dart`
+- `flutter_app/lib/pages/displacement_page.dart`
+- `flutter_app/lib/models/displacement_result.dart`
+- `docs/development_log.md`
+
+**검증**
+- `dart format` 성공.
+- `flutter analyze` 성공.
+- `flutter test` 성공.
+- `flutter build apk --debug` 성공.
+- `adb install -r build/app/outputs/flutter-apk/app-debug.apk` 성공.
+- `adb shell am start -S -W ...`로 앱 실행 성공.
+
+## 2026-07-03 — ROI 첫 프레임 기반 마커 중심/추적 박스 설정 구현
+
+**작업 내용**
+- `MarkerCenterPage` 플레이스홀더를 실제 ROI 첫 프레임 기반 화면으로 교체.
+- HSV 미리보기와 같은 `HsvPreviewService.loadRoiFrame()`을 사용해 선택 영상의 ROI crop 이미지를 표시.
+- ROI 이미지 탭 위치를 ROI 이미지 픽셀 좌표로 변환해 마커 중심으로 저장.
+- 점 대신 큰 십자가, 중심 링, 작은 흰색 중심점을 표시하도록 구현.
+- 추적 박스 크기 슬라이더를 5~300px 범위로 제공하고, 움직일 때 파란 박스가 실시간으로 확대/축소되도록 구현.
+- `되돌리기`로 현재 마커를 제거하고, `확인` 시 `DiagnosisSession.markers`에 중심 좌표와 추적 박스 크기를 저장.
+- `MarkerInfo`에 `trackingBoxSize` 필드 추가.
+
+**생성/수정 파일**
+- `flutter_app/lib/models/marker_info.dart`
+- `flutter_app/lib/pages/marker_center_page.dart`
+- `docs/development_log.md`
+
+**검증**
+- `dart format` 성공.
+- `flutter analyze` 성공.
+- `flutter test` 성공.
+- `flutter build apk --debug` 성공.
+- `adb install -r build/app/outputs/flutter-apk/app-debug.apk` 성공.
+- `adb shell am start -S -W ...`로 앱 실행 성공.
+
+## 2026-07-03 — Android OpenCV 기반 HSV 미리보기 채널 연결
+
+**작업 내용**
+- Flutter Android 앱에 `:opencv` 얇은 라이브러리 모듈을 추가.
+- `legacy_android/X-twice-app_integration/OpenCV`의 Java wrapper, resource, native `.so`를
+  읽기 전용으로 참조하고 빌드 산출물은 `flutter_app/` 아래에 생성되도록 구성.
+- OpenCV Kotlin helper(`MatAt.kt`)는 현재 Kotlin 2.0.21과 충돌해 컴파일 대상에서 제외하고,
+  Java wrapper API만 사용하도록 구성.
+- `MainActivity`에 `fault_diagnosis/hsv_preview` MethodChannel 추가.
+- Android 네이티브에서 첫 프레임 ROI crop과 HSV `inRange` 필터를 OpenCV로 수행하도록 구현.
+- Dart `HsvPreviewService`는 Android에서 네이티브 OpenCV 채널을 우선 사용하고,
+  비 Android 환경에서는 기존 Dart 구현으로 fallback.
+- OpenCV native library가 요구하는 `libc++_shared.so`가 APK에 포함되지 않아 앱 시작 시
+  `UnsatisfiedLinkError`가 발생하던 문제를 수정.
+- `:opencv` 모듈에서 레거시 OpenCV 빌드 산출물 중 `libc++_shared.so`만 빌드 디렉터리로
+  복사해 패키징하도록 설정.
+
+**생성/수정 파일**
+- `flutter_app/android/settings.gradle.kts`
+- `flutter_app/android/app/build.gradle.kts`
+- `flutter_app/android/opencv/build.gradle`
+- `flutter_app/android/app/src/main/kotlin/com/example/fault_diagnosis_application/MainActivity.kt`
+- `flutter_app/lib/services/hsv_preview_service.dart`
+- `docs/development_log.md`
+
+**검증**
+- `flutter analyze` 성공.
+- `flutter test` 성공.
+- `flutter build apk --debug` 성공.
+- `adb install -r build/app/outputs/flutter-apk/app-debug.apk` 성공.
+- `adb shell am start -S -W ...`로 앱 실행 성공.
+- `adb logcat -b crash`에서 OpenCV 로딩 crash가 사라진 것을 확인.
+- `adb shell screencap`으로 Flutter 시작 화면 표시 확인.
+
+## 2026-07-03 — 첫 프레임 ROI HSV 실시간 미리보기 구현
+
+**작업 내용**
+- `video_thumbnail` 패키지로 선택 영상의 첫 프레임을 추출하도록 구현.
+- `image` 패키지로 첫 프레임에서 ROI 영역을 잘라내고 HSV 범위 필터를 적용하는
+  `HsvPreviewService` 추가.
+- 레거시 `HSVActivity`의 처리 흐름처럼 HSV 범위 안에 들어온 픽셀만 원본 색으로 남기고,
+  나머지는 검정색으로 표시.
+- `HsvSettingPage`에 ROI HSV 미리보기 영역을 추가.
+- H/S/V `RangeSlider`를 움직이면 debounce 후 실시간으로 미리보기 이미지를 다시 계산.
+- 미리보기 이미지 위에 검출 픽셀 비율을 표시.
+
+**생성/수정 파일**
+- `flutter_app/pubspec.yaml`
+- `flutter_app/pubspec.lock`
+- `flutter_app/lib/services/hsv_preview_service.dart`
+- `flutter_app/lib/pages/hsv_setting_page.dart`
+- `docs/development_log.md`
+
+**검증**
+- `flutter pub get` 성공.
+- `flutter analyze` 성공.
+- `flutter test` 성공.
+- `flutter build apk --debug` 성공.
+- `adb install -r build/app/outputs/flutter-apk/app-debug.apk` 성공.
+- `adb shell monkey -p com.example.fault_diagnosis_application 1`로 앱 실행 성공.
+
+## 2026-07-03 — 레거시 HSV 프리셋 기반 설정 화면 보강
+
+**작업 내용**
+- 레거시 Android 앱의 마커 색상별 HSV 프리셋을 Flutter 마커 색상 선택 흐름에 명확히 연결.
+- 선택한 마커 색상의 key/라벨과 HSV 프리셋을 `DiagnosisSession`에 함께 저장하도록 보강.
+- HSV H 범위를 레거시 프리셋과 맞춰 0~180으로 조정.
+- `HsvSettingPage`에서 선택한 마커 색상, 영상명, ROI 픽셀 좌표, 현재 HSV 범위를 표시.
+- H/S/V 각각을 `RangeSlider`로 조정하도록 변경해 min/max 역전 입력을 방지.
+- 색상 선택 버튼에 각 프리셋의 H/S/V 범위를 함께 표시.
+
+**생성/수정 파일**
+- `flutter_app/lib/models/diagnosis_session.dart`
+- `flutter_app/lib/models/hsv_range.dart`
+- `flutter_app/lib/pages/marker_color_page.dart`
+- `flutter_app/lib/pages/hsv_setting_page.dart`
+- `docs/development_log.md`
+
+**검증**
+- `dart format` 성공.
+- `flutter analyze` 성공.
+- `flutter test` 성공.
+- `flutter build apk --debug` 성공.
+- `adb install -r build/app/outputs/flutter-apk/app-debug.apk` 성공.
+- `adb shell monkey -p com.example.fault_diagnosis_application 1`로 앱 실행 성공.
+
+## 2026-07-03 — 실제 영상 기반 ROI 사각형 지정 구현
+
+**작업 내용**
+- `RoiSettingPage`에서 선택한 영상을 `VideoPlayerController.file`로 초기화해 첫 프레임을 표시.
+- 영상 위에서 드래그해 ROI 사각형을 지정하도록 구현.
+- ROI 좌표는 프레임 크기와 독립적인 0.0~1.0 정규화 값(`RoiInfo`)으로 저장.
+- 선택된 ROI의 픽셀 좌표(left/top/right/bottom)를 화면에 표시.
+- `자르기` 버튼은 ROI 바깥 영역을 어둡게 표시하는 미리보기 토글로 구현.
+- `리셋` 버튼으로 ROI 선택을 초기화하고, `완료` 시 `DiagnosisSession.roiInfo`에 저장 후 다음 화면으로 이동.
+- `RoiPainter`가 실제 영상 위 overlay로 사용할 수 있도록 배경 표시 여부와 ROI 외부 dim 옵션을 추가.
+
+**생성/수정 파일**
+- `flutter_app/lib/pages/roi_setting_page.dart`
+- `flutter_app/lib/widgets/roi_painter.dart`
+- `docs/development_log.md`
+
+**검증**
+- `flutter analyze` 성공.
+- `flutter test` 성공.
+- `flutter build apk --debug` 성공.
+- `adb install -r build/app/outputs/flutter-apk/app-debug.apk` 성공.
+- `adb shell monkey -p com.example.fault_diagnosis_application 1`로 앱 실행 성공.
+
+## 2026-07-03 — 영상 메타데이터 자동 입력 구현
+
+**작업 내용**
+- `video_player` 패키지를 추가해 선택한 영상의 가로/세로/길이 정보를 읽도록 구현.
+- `VideoService.loadVideoInfo()`에서 선택한 영상 파일을 초기화하고 `VideoInfo`에
+  width, height, durationMs를 채워 반환.
+- `VideoInfoPage` 진입 시 선택된 영상의 메타데이터를 자동으로 읽어 가로/세로 입력칸에 반영.
+- 영상 정보 입력 확인 시 기존 영상 path/displayName/durationMs를 유지하고, FPS가 입력되면
+  durationMs 기준으로 frameCount를 계산.
+- 메타데이터 읽기 실패 시 직접 입력 안내 메시지를 표시.
+
+**생성/수정 파일**
+- `flutter_app/pubspec.yaml`
+- `flutter_app/pubspec.lock`
+- `flutter_app/lib/services/video_service.dart`
+- `flutter_app/lib/pages/video_info_page.dart`
+- `docs/development_log.md`
+
+**검증**
+- `flutter pub get` 성공.
+- `flutter analyze` 성공.
+- `flutter test` 성공.
+- `flutter build apk --debug` 성공.
+- `adb install -r build/app/outputs/flutter-apk/app-debug.apk` 성공.
+- `adb shell monkey -p com.example.fault_diagnosis_application 1`로 앱 실행 성공.
+
+## 2026-07-03 — 실제 영상 선택 1단계 구현
+
+**작업 내용**
+- `file_picker` 패키지를 추가해 Flutter 앱에서 실제 영상 파일을 선택할 수 있도록 구현.
+- `VideoSelectPage`에서 영상 선택 버튼을 실제 파일 선택기로 연결.
+- 선택한 영상 파일명을 화면과 SnackBar에 표시하고 `DiagnosisSession.videoInfo`에 저장.
+- `VideoInfoPage`에서 선택된 영상명을 표시하고, 해상도/FPS 입력 시 기존 영상 경로/파일명을 유지.
+- `VideoInfo` 모델에 `displayName` 필드 추가.
+- 앱 프로젝트 재현성을 위해 `pubspec.lock`을 버전 관리 대상에서 제외하지 않도록 `.gitignore` 정리.
+
+**생성/수정 파일**
+- `flutter_app/pubspec.yaml`
+- `flutter_app/pubspec.lock`
+- `flutter_app/.gitignore`
+- `flutter_app/lib/models/video_info.dart`
+- `flutter_app/lib/services/file_service.dart`
+- `flutter_app/lib/pages/video_select_page.dart`
+- `flutter_app/lib/pages/video_info_page.dart`
+- `docs/development_log.md`
+
+**검증**
+- `flutter pub get` 성공.
+- `flutter analyze` 성공.
+- `flutter test` 성공.
+- `flutter build apk --debug` 성공.
+- `adb install -r build/app/outputs/flutter-apk/app-debug.apk` 성공.
+- `adb shell monkey -p com.example.fault_diagnosis_application 1`로 앱 실행 성공.
+
 ## 2026-07-03 — 하단 액션 버튼 시스템 내비게이션 여백 보정
 
 **작업 내용**

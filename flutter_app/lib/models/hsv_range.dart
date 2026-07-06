@@ -1,6 +1,6 @@
 /// 마커 검출에 사용할 HSV 색공간 범위를 표현하는 모델.
 ///
-/// 기본값은 OpenCV의 일반적인 범위(H: 0~179, S/V: 0~255)를 따른다.
+/// 기본값은 레거시 Android 앱의 프리셋 범위(H: 0~180, S/V: 0~255)를 따른다.
 /// 1차 마일스톤에서는 실제 HSV 필터링을 수행하지 않는다.
 class HsvRange {
   final double hMin;
@@ -12,7 +12,7 @@ class HsvRange {
 
   const HsvRange({
     this.hMin = 0,
-    this.hMax = 179,
+    this.hMax = 180,
     this.sMin = 0,
     this.sMax = 255,
     this.vMin = 0,
