@@ -4,6 +4,177 @@
 
 ---
 
+## 2026-07-07 — iPhone 12 mini 실기기 iOS 진단 흐름 1차 확인
+
+**작업 내용**
+- iPhone 12 mini에서 Flutter iOS 앱 설치/실행을 반복 검증.
+- iOS에서 영상 선택 → ROI 설정 → HSV 미리보기 → 마커 중심 설정 → 변위 계산 → 모델 진단 흐름을 1차로 확인.
+- iOS ROI 첫 화면이 `video_player`에서 흰 화면으로 보이는 문제가 있어, ROI 설정 화면의 배경 프레임을 `HsvPreviewService.loadRoiFrame` 결과 이미지로 표시하도록 변경.
+- iOS `fault_diagnosis/hsv_preview` 채널을 추가해 `AVAssetImageGenerator` 기반 첫 프레임 추출/ROI crop을 수행하도록 연결.
+- iOS 미리보기 프레임과 실제 OpenCV 처리 프레임 크기가 다를 수 있어, 마커 중심과 추적 박스 크기를 ROI 프레임 기준 정규화 값으로 함께 저장하고 iOS 변위 계산에 전달하도록 보강.
+- 파일명 복원 실험은 iOS 파일 경로/표시 안정성에 영향을 줘 롤백했고, 현재는 기존 `file_picker` 기반 선택 흐름을 유지한다.
+- 현재 테스트 세트에서 대부분의 진단 결과는 기대값과 맞았으나, IR 영상 2개 중 1개가 iOS에서 OR로 판정되는 사례가 있어 Android/iOS CSV 및 logits 비교가 필요하다.
+
+**생성/수정 파일**
+- `flutter_app/ios/Runner/AppDelegate.swift`
+- `flutter_app/lib/pages/roi_setting_page.dart`
+- `flutter_app/lib/pages/marker_center_page.dart`
+- `flutter_app/lib/models/marker_info.dart`
+- `flutter_app/lib/services/hsv_preview_service.dart`
+- `flutter_app/lib/services/displacement_service.dart`
+- `docs/development_log.md`
+- `docs/ios_porting_preparation.md`
+
+**검증**
+- `flutter analyze` 성공.
+- `flutter build ios --release` 성공.
+- `xcrun devicectl device install app --device 00008101-000620C61429003A build/ios/iphoneos/Runner.app` 성공.
+- iPhone 12 mini에서 앱 첫 화면 및 주요 진단 흐름 진입 확인.
+- 사용자 실기기 확인 기준으로 ROI/HSV/변위 계산/진단 흐름이 동작함을 확인.
+
+**Android 영향 범위**
+- 이번 iOS 작업 후 `flutter_app/android/` 하위 변경 사항은 없다.
+- `flutter_app/lib/`는 Android/iOS 공통 코드이므로 일부 변경되었다.
+  - `DiagnosisService`, `DisplacementService`, `HsvPreviewService`가 iOS에서도 네이티브 채널을 호출하도록 플랫폼 분기를 확장했다.
+  - `MarkerInfo`에 정규화 좌표/박스 비율 필드를 추가했다.
+  - Android 네이티브 채널에는 기존 인자와 함께 추가 인자가 전달되지만, Android `MainActivity.kt`는 필요한 키만 읽는 구조이므로 기존 Android 동작 계약은 유지된다.
+- 커밋/푸시 전 Android 실기기 또는 최소 `flutter build apk --debug`로 회귀 확인하는 것이 안전하다.
+
+**남은 검증**
+- 같은 IR 영상에 대해 Android/iOS CSV의 `DisplacementZ`, `detectedFrameCount`, `missedFrameCount`, `zStdDev`, logits를 비교해야 한다.
+- IR/OR logits 차이가 작으면 모델 경계 사례로 기록하고 유지하는 편이 낫다.
+- 변위 통계가 Android와 크게 다르면 ROI 좌표계, 회전 메타데이터, HSV threshold, 프레임 추출 방식을 우선 점검한다.
+
+---
+
+## 2026-07-07 — iOS PyTorch Lite 모델 추론 연결
+
+**작업 내용**
+- Android와 같은 `Fwdcnn7.ptl` 모델 파일을 iOS Runner bundle resource로 추가.
+- CocoaPods에 `LibTorch-Lite`를 추가해 iOS에서 PyTorch Lite 모델을 로드하도록 구성.
+- `IOSDiagnosisCalculator` Objective-C++ 브리지를 추가.
+- iOS `fault_diagnosis/model` MethodChannel을 `AppDelegate`에 등록.
+- Android와 같은 입력/출력 계약을 유지.
+  - 입력: `DisplacementZ`, 길이 2048, shape `[1, 1, 2048]`
+  - 출력: logits, softmax probabilities, class labels `B, H, IR, OR`
+- Dart `DiagnosisService`가 iOS에서도 mock 대신 네이티브 MethodChannel을 호출하도록 변경.
+- PyTorch Lite 2.1 headers가 C++17을 요구해 iOS Runner target의 C++ 표준을 `gnu++17`로 변경.
+
+**생성/수정 파일**
+- `flutter_app/ios/Podfile`
+- `flutter_app/ios/Podfile.lock`
+- `flutter_app/ios/Runner/Fwdcnn7.ptl`
+- `flutter_app/ios/Runner/IOSDiagnosisCalculator.h`
+- `flutter_app/ios/Runner/IOSDiagnosisCalculator.mm`
+- `flutter_app/ios/Runner/Runner-Bridging-Header.h`
+- `flutter_app/ios/Runner/AppDelegate.swift`
+- `flutter_app/ios/Runner.xcodeproj/project.pbxproj`
+- `flutter_app/lib/services/diagnosis_service.dart`
+
+**검증**
+- `pod install` 성공.
+- `dart format lib/services/diagnosis_service.dart` 성공.
+- `flutter analyze` 성공.
+- `flutter test` 성공.
+- `flutter build ios --no-codesign` 성공.
+- `flutter build ios --release` 성공.
+- `xcrun devicectl device install app --device 00008101-000620C61429003A build/ios/iphoneos/Runner.app` 성공.
+- `xcrun devicectl device process launch ...`로 앱 시작 후 즉시 크래시가 없는 것을 확인.
+
+**남은 검증**
+- 실제 iPhone 시나리오에서 변위 계산 완료 후 `FaultDiagnosisPage`까지 진입해 iOS PyTorch Lite 추론이 성공하는지 확인해야 한다.
+- 동일한 `DisplacementZ` 입력에 대해 Android와 iOS logits/softmax가 같은지 비교해야 한다.
+- 만약 `.ptl`이 PyTorch Lite 2.1 런타임과 호환되지 않으면, PyTorch iOS 버전 조정 또는 Core ML 변환을 검토한다.
+
+## 2026-07-07 — iOS OpenCV 변위 계산 채널 1차 연결
+
+**작업 내용**
+- iOS에서 실제 변위 계산을 수행하기 위해 CocoaPods에 `OpenCV2`를 추가.
+- `IOSDisplacementCalculator` Objective-C++ 브리지를 추가해 OpenCV `VideoCapture`, HSV mask, morphology, moments 기반 마커 중심 추적을 구현.
+- Android와 같은 `fault_diagnosis/displacement` MethodChannel 및 `fault_diagnosis/displacement_progress` EventChannel을 iOS `AppDelegate`에 연결.
+- iOS 변위 계산 결과를 Android와 같은 구조로 반환하도록 맞춤.
+  - `displacementZ`
+  - `rawLength`
+  - `detectedFrameCount`
+  - `missedFrameCount`
+  - `zStdDev`
+  - `csvUri`
+  - `csvDisplayName`
+- iOS CSV 저장 위치를 앱 Documents directory로 설정.
+- iOS `shareCsv` 호출 시 `UIActivityViewController`를 표시하도록 연결.
+- Dart `DisplacementService`가 iOS에서도 mock 대신 네이티브 MethodChannel을 호출하도록 변경.
+- 최초 구현에서 `SceneDelegate`에 채널을 등록했으나 현재 `Info.plist`가 scene manifest를 사용하지 않아 실제 실행되지 않았다. 이로 인해 `MissingPluginException(No implementation found for method computeDisplacement)`이 발생했고, 채널 등록 위치를 실제 실행되는 `AppDelegate`로 이동했다.
+
+**생성/수정 파일**
+- `flutter_app/ios/Podfile`
+- `flutter_app/ios/Podfile.lock`
+- `flutter_app/ios/Runner/IOSDisplacementCalculator.h`
+- `flutter_app/ios/Runner/IOSDisplacementCalculator.mm`
+- `flutter_app/ios/Runner/Runner-Bridging-Header.h`
+- `flutter_app/ios/Runner/SceneDelegate.swift`
+- `flutter_app/ios/Runner.xcodeproj/project.pbxproj`
+- `flutter_app/lib/services/displacement_service.dart`
+
+**검증**
+- `pod install` 성공.
+- `dart format lib/services/displacement_service.dart` 성공.
+- `flutter analyze` 성공.
+- `flutter test` 성공.
+- `flutter build ios --no-codesign` 성공.
+- `flutter build ios --release` 성공.
+- `xcrun devicectl device install app --device 00008101-000620C61429003A build/ios/iphoneos/Runner.app` 성공.
+- `xcrun devicectl device process launch ...`로 앱 시작 후 즉시 크래시가 없는 것을 확인.
+- `MissingPluginException` 수정 후 `flutter analyze`, `flutter test`, `flutter build ios --release`, iPhone 재설치 성공.
+
+**남은 검증**
+- iPhone에서 실제 영상 선택 → ROI → HSV → 마커 중심 → 변위 계산까지 사용자 시나리오로 실행해 OpenCV `VideoCapture`가 iOS 선택 영상 path를 안정적으로 읽는지 확인해야 한다.
+- 만약 iOS OpenCV `VideoCapture`가 특정 mp4/Photos 파일을 열지 못하면, 문서에 적어둔 대로 `AVAssetReader`로 프레임을 읽고 OpenCV `Mat`으로 넘기는 방식으로 교체한다.
+- iOS 모델 추론은 아직 mock 상태이므로 변위 계산 이후 결함 진단은 다음 단계에서 PyTorch iOS/Core ML/ONNX 중 하나로 연결해야 한다.
+
+## 2026-07-06 — iPhone 12 mini iOS 실행 환경 점검
+
+**작업 내용**
+- macOS Flutter/iOS 개발 환경을 점검.
+- `flutter doctor` 초기 상태에서 Xcode가 Command Line Tools로 잡혀 있고 CocoaPods가 없음을 확인.
+- Homebrew로 CocoaPods `1.16.2` 설치.
+- 현재 세션에서는 `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`를 지정해 Xcode 16.0을 사용.
+- `flutter clean` 후 `flutter pub get`을 다시 실행해 오래된 `ios/Flutter/Generated.xcconfig`의 임시 Flutter SDK 경로를 현재 Mac 경로로 갱신.
+- iOS 플러그인 의존성 설치를 위해 `pod install` 실행.
+- `video_player_avfoundation`이 iOS 13.0 이상을 요구해 `ios/Podfile`의 최소 배포 타깃을 `12.0`에서 `13.0`으로 변경.
+- 실제 iPhone 12 mini가 Flutter/Xcode에서 인식되는 것을 확인.
+- Xcode signing 설정 후 iOS release 빌드와 기기 설치를 확인.
+
+**확인된 기기**
+- `고대호의 iPhone`
+- 모델: `iPhone13,1` (iPhone 12 mini)
+- iOS: `26.5`
+- Flutter device id: `00008101-000620C61429003A`
+- Xcode/CoreDevice 상태: `available (paired)`
+
+**생성/수정 파일**
+- `flutter_app/ios/Podfile`
+- `flutter_app/ios/Podfile.lock`
+- `flutter_app/ios/Runner.xcworkspace/contents.xcworkspacedata`
+- `flutter_app/ios/Runner.xcodeproj/project.pbxproj` (Xcode signing/team 설정 및 Flutter 호환성 갱신)
+- `flutter_app/ios/Flutter/Generated.xcconfig` (생성 파일, 현재 Mac 경로로 갱신)
+- `flutter_app/ios/Flutter/flutter_export_environment.sh` (생성 파일, 현재 Mac 경로로 갱신)
+
+**검증**
+- `flutter pub get` 성공.
+- `pod install` 성공.
+- `flutter analyze` 성공.
+- `flutter build ios --no-codesign` 성공.
+- `flutter build ios --release` 성공.
+- `xcrun devicectl device install app --device 00008101-000620C61429003A build/ios/iphoneos/Runner.app` 성공.
+- iPhone 12 mini에서 앱 첫 화면 실행 확인.
+
+**확인된 제한 사항**
+- `flutter run` debug 실행은 iOS에서 debug FlutterEngine attach가 정상적으로 붙지 않아 앱이 즉시 종료되는 현상이 있었다.
+- iPhone에서 개발자 프로파일/인증서를 신뢰한 뒤 release 앱이 실행되는 것을 확인했다.
+- 현재 확인된 범위는 Flutter iOS 앱의 기본 화면 실행이다. iOS OpenCV/모델 추론 네이티브 구현은 아직 연결되지 않았다.
+- 시스템 기본 Xcode 경로는 아직 `/Library/Developer/CommandLineTools`이므로, 영구 설정을 위해 사용자가 터미널에서 `sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer`를 1회 실행하는 것이 좋다.
+- CocoaPods는 UTF-8 locale이 필요하므로 Flutter/iOS 명령 실행 시 `LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8`를 함께 지정하면 안정적이다.
+
 ## 2026-07-06 — 진행률 표시, HSV 디버그, CSV 공유, 상단 알림 개선
 
 **작업 내용**

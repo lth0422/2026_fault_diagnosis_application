@@ -1,12 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:video_player/video_player.dart';
 
 import '../models/diagnosis_session.dart';
 import '../models/roi_info.dart';
 import '../models/video_info.dart';
+import '../services/hsv_preview_service.dart';
 import '../widgets/step_header.dart';
 import '../widgets/primary_button.dart';
 import '../widgets/roi_painter.dart';
@@ -25,8 +23,7 @@ class RoiSettingPage extends StatefulWidget {
 }
 
 class _RoiSettingPageState extends State<RoiSettingPage> {
-  VideoPlayerController? _controller;
-  Future<void>? _initializeVideo;
+  Future<HsvPreviewFrame>? _loadFirstFrame;
   RoiInfo? _roi;
   Offset? _dragStart;
   bool _isCropPreview = false;
@@ -42,7 +39,6 @@ class _RoiSettingPageState extends State<RoiSettingPage> {
 
   @override
   void dispose() {
-    _controller?.dispose();
     super.dispose();
   }
 
@@ -53,19 +49,22 @@ class _RoiSettingPageState extends State<RoiSettingPage> {
       return;
     }
 
-    final controller = VideoPlayerController.file(File(path));
-    _controller = controller;
-    _initializeVideo = controller.initialize().then((_) async {
-      await controller.pause();
-      await controller.seekTo(Duration.zero);
-      if (mounted) {
-        setState(() {});
+    _loadFirstFrame = HsvPreviewService()
+        .loadRoiFrame(
+      videoInfo: videoInfo!,
+      roiInfo: const RoiInfo(x: 0, y: 0, width: 1, height: 1),
+    )
+        .then((frame) {
+      if (frame.bytes.isEmpty || frame.width <= 0 || frame.height <= 0) {
+        throw StateError('첫 프레임을 읽지 못했습니다.');
       }
-    }).catchError((error) {
+      return frame;
+    }).catchError((Object error) {
       _videoError = '영상을 표시하지 못했습니다.';
       if (mounted) {
         setState(() {});
       }
+      throw error;
     });
   }
 
@@ -135,22 +134,20 @@ class _RoiSettingPageState extends State<RoiSettingPage> {
       return _buildPlaceholder(_videoError!);
     }
 
-    return FutureBuilder<void>(
-      future: _initializeVideo,
+    return FutureBuilder<HsvPreviewFrame>(
+      future: _loadFirstFrame,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return const CircularProgressIndicator();
         }
 
-        final controller = _controller;
-        if (snapshot.hasError ||
-            controller == null ||
-            !controller.value.isInitialized) {
+        final frame = snapshot.data;
+        if (snapshot.hasError || frame == null || frame.bytes.isEmpty) {
           return _buildPlaceholder('영상을 표시하지 못했습니다.');
         }
 
         return AspectRatio(
-          aspectRatio: controller.value.aspectRatio,
+          aspectRatio: frame.width / frame.height,
           child: LayoutBuilder(
             builder: (context, constraints) {
               final size = Size(constraints.maxWidth, constraints.maxHeight);
@@ -184,7 +181,11 @@ class _RoiSettingPageState extends State<RoiSettingPage> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    VideoPlayer(controller),
+                    Image.memory(
+                      frame.bytes,
+                      fit: BoxFit.fill,
+                      gaplessPlayback: true,
+                    ),
                     CustomPaint(
                       foregroundPainter: RoiPainter(
                         roi: _roi,

@@ -102,10 +102,18 @@ class _MarkerCenterPageState extends State<MarkerCenterPage> {
 
   void _confirmMarker() {
     final center = _markerCenter;
+    final frame = _roiFrame;
     if (center == null) {
       showTopNotice(context, '마커 중심을 선택해주세요.');
       return;
     }
+    if (frame == null || frame.width <= 0 || frame.height <= 0) {
+      showTopNotice(context, 'ROI 프레임을 먼저 불러와야 합니다.');
+      return;
+    }
+
+    final shortestFrameSide =
+        frame.width < frame.height ? frame.width : frame.height;
 
     context.read<DiagnosisSession>().setMarkers(
       <MarkerInfo>[
@@ -113,7 +121,12 @@ class _MarkerCenterPageState extends State<MarkerCenterPage> {
           id: 1,
           colorValue: _markerColorValue(context.read<DiagnosisSession>()),
           center: center,
+          normalizedCenter: Offset(
+            (center.dx / frame.width).clamp(0.0, 1.0),
+            (center.dy / frame.height).clamp(0.0, 1.0),
+          ),
           trackingBoxSize: _trackingBoxSize,
+          normalizedTrackingBoxSize: _trackingBoxSize / shortestFrameSide,
         ),
       ],
     );

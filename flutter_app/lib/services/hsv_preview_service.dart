@@ -45,7 +45,8 @@ class HsvPreviewService {
     required VideoInfo videoInfo,
     required RoiInfo roiInfo,
   }) async {
-    if (defaultTargetPlatform == TargetPlatform.android) {
+    if (defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS) {
       final nativeResult = await _channel.invokeMapMethod<String, Object?>(
         'loadRoiFrame',
         <String, Object?>{

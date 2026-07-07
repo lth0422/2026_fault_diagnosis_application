@@ -197,6 +197,48 @@ iOS에서 검토할 선택지:
 - `flutter doctor`에서 iOS 항목 확인.
 - 실제 iPhone 또는 iOS Simulator 준비.
 
+2026-07-06 iPhone 12 mini 점검 결과:
+
+- Xcode 16.0 설치 확인.
+- Homebrew CocoaPods `1.16.2` 설치 확인.
+- `flutter doctor`는 `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer` 지정 시 iOS/Xcode 항목 통과.
+- 실제 기기 `고대호의 iPhone`이 Flutter와 Xcode에서 인식됨.
+- 기기 모델은 `iPhone13,1`이며 iPhone 12 mini에 해당.
+- 기기 ID는 `00008101-000620C61429003A`.
+- `flutter build ios --no-codesign` 성공.
+- `flutter build ios --release` 성공.
+- `xcrun devicectl device install app`으로 release `Runner.app` 설치 성공.
+- iPhone 12 mini에서 Flutter 앱 첫 화면 실행 확인.
+
+현재 Mac에서 재현할 때 사용한 기본 명령:
+
+```bash
+cd flutter_app
+flutter clean
+flutter pub get
+LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer pod install --project-directory=ios
+LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer flutter build ios --release
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun devicectl device install app --device 00008101-000620C61429003A build/ios/iphoneos/Runner.app
+```
+
+주의:
+
+- 현재 시스템 기본 `xcode-select -p`가 `/Library/Developer/CommandLineTools`이면 Flutter iOS 빌드가 Xcode 설정을 제대로 읽지 못할 수 있다.
+- 영구 설정은 사용자가 터미널에서 다음 명령을 1회 실행한다.
+
+```bash
+sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+```
+
+- sudo 실행이 어렵거나 임시로만 사용할 때는 위 예시처럼 `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`를 명령 앞에 붙인다.
+- CocoaPods가 `Unicode Normalization not appropriate for ASCII-8BIT` 오류를 내면 `LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8`를 함께 지정한다.
+- `video_player_avfoundation`이 iOS 13.0 이상을 요구하므로 `ios/Podfile`의 `platform :ios`는 `13.0` 이상이어야 한다.
+- 2026-07-07 기준 iOS 변위 계산 실험을 위해 `OpenCV2` CocoaPod을 추가했다.
+- 2026-07-07 기준 iOS 모델 추론 실험을 위해 `LibTorch-Lite` CocoaPod을 추가하고 `Fwdcnn7.ptl`을 Runner resource로 포함했다.
+- `LibTorch-Lite` 2.1 headers는 C++17 이상을 요구하므로 Runner target의 C++ 표준은 `gnu++17`이어야 한다.
+- 2026-07-07 기준 iPhone 12 mini에서 영상 선택, ROI/HSV, 변위 계산, 모델 진단 흐름이 1차 동작하는 것을 확인했다.
+- iOS ROI 화면은 `video_player` 대신 `AVAssetImageGenerator` 기반 첫 프레임 이미지를 표시하도록 변경했다. 같은 프레임 추출 경로를 HSV 미리보기와 공유해 ROI 화면과 다음 HSV 단계의 기준을 맞춘다.
+
 ### iOS 권한/설정
 
 필요할 수 있는 `Info.plist` 항목:
@@ -207,6 +249,26 @@ iOS에서 검토할 선택지:
 
 현재는 문서 선택 기반으로 시작하면 Photos 권한을 최소화할 수 있다.
 
+### 실제 iPhone 실행/신뢰 절차
+
+실제 iPhone에 설치하려면 아래 순서가 필요하다.
+
+1. iPhone을 USB로 연결하고 잠금 해제.
+2. iPhone에서 `이 컴퓨터를 신뢰` 팝업이 뜨면 승인.
+3. Xcode에서 `Window > Devices and Simulators`를 열어 기기가 표시되는지 확인.
+4. iPhone에서 `설정 > 개인정보 보호 및 보안 > 개발자 모드`를 켜고 재부팅 후 승인.
+5. Xcode에서 `Runner` target의 `Signing & Capabilities`에 Development Team을 지정하고 `Automatically manage signing`을 켠다.
+6. 앱 설치 후 실행이 보안 오류로 막히면 iPhone에서 `설정 > 일반 > VPN 및 기기 관리`로 이동해 개발자 앱 인증서를 신뢰한다.
+
+2026-07-06 확인된 오류와 의미:
+
+| 오류 | 의미 | 조치 |
+|---|---|---|
+| `enable Developer Mode in Settings -> Privacy & Security` | iPhone 개발자 모드 꺼짐 | iPhone에서 개발자 모드 켜기 |
+| `No valid code signing certificates were found` | Xcode signing/team 미설정 | Apple ID 로그인, Runner target Team 선택 |
+| `profile has not been explicitly trusted by the user` | 설치된 개발자 인증서를 iPhone에서 아직 신뢰하지 않음 | `설정 > 일반 > VPN 및 기기 관리`에서 신뢰 |
+| `Cannot create a FlutterEngine instance in debug mode without Flutter tooling or Xcode` | debug 빌드 앱을 홈 화면/일반 launch 방식으로 실행 | `flutter run`으로 실행하거나 release 빌드를 설치해 홈 화면에서 실행 |
+
 ### UI/알림
 
 - Flutter 화면의 일반 알림은 하단 SnackBar가 아니라 상단 MaterialBanner 방식으로 정리되어 있다.
@@ -216,8 +278,8 @@ iOS에서 검토할 선택지:
 
 확인 필요:
 
-- OpenCV iOS framework 추가 방식.
-- PyTorch iOS 또는 대체 추론 엔진 추가 방식.
+- OpenCV iOS framework 추가 방식. (2026-07-07 `OpenCV2` CocoaPod으로 1차 연결)
+- PyTorch iOS 또는 대체 추론 엔진 추가 방식. (2026-07-07 `LibTorch-Lite` CocoaPod으로 1차 연결)
 - iOS 빌드 시 framework 크기와 architecture 설정.
 
 ## 5. Android와 iOS 결과 비교 계획
@@ -248,6 +310,22 @@ iOS 실험 시 같은 영상 세트를 사용해 Android 결과와 비교한다.
 | 예시.mp4 | IR | Android | 2040/2048 | 8 | 1.234 | ... | IR |
 | 예시.mp4 | IR | iOS | 2038/2048 | 10 | 1.231 | ... | IR |
 
+2026-07-07 현재 관찰:
+
+- iPhone 12 mini 실기기에서 대부분의 테스트 영상은 기대 결함으로 분류됐다.
+- IR 영상 2개 중 1개가 iOS에서 OR로 분류되는 사례가 있다.
+- 이 상태에서 바로 iOS 알고리즘을 크게 바꾸기보다는, 같은 영상의 Android/iOS CSV와 logits를 먼저 비교해야 한다.
+- 비교 결과 `DisplacementZ`, 검출/실패 프레임 수, `zStdDev`가 거의 같고 IR/OR logits가 근접하면 모델 경계 사례로 기록한다.
+- 비교 결과 변위 통계가 크게 다르면 ROI 좌표계, 회전 메타데이터, 프레임 추출 방식, HSV mask 차이를 우선 수정한다.
+
+Android 영향 범위:
+
+- iOS 작업 이후 `flutter_app/android/` 하위 파일은 변경하지 않았다.
+- `flutter_app/lib/`는 Android/iOS 공통 영역이므로 일부 변경되었다.
+- Android 기존 MethodChannel 이름과 필수 인자 구조는 유지된다.
+- iOS 대응을 위해 추가 전달하는 정규화 좌표/박스 비율 인자는 Android 네이티브 구현에서 필수로 읽지 않으므로 Android 기존 동작과 호환된다.
+- 그래도 커밋/푸시 전에는 Android 실기기 또는 `flutter build apk --debug`로 최소 회귀 확인을 권장한다.
+
 ## 6. iOS 이전 시 예상 리스크
 
 ### OpenCV VideoCapture 호환성
@@ -268,16 +346,16 @@ OpenCV와 모델 추론 엔진을 함께 넣으면 iOS 앱 크기가 커질 수 
 
 ## 7. iOS 실험 우선순위
 
-1. Flutter iOS 앱이 기본 화면 흐름으로 실행되는지 확인.
-2. iOS 로컬 영상 선택 및 앱 캐시 복사 구현.
-3. 첫 프레임 ROI 표시 구현.
-4. HSV 미리보기 구현.
-5. HSV 원본/검출 전환 및 검출 비율 표시 확인.
-6. 마커 중심 설정 후 변위 계산 구현.
-7. 변위 계산 진행률 EventChannel 구현.
-8. CSV 저장 및 share sheet 내보내기 구현.
-9. 모델 추론 구현.
-10. Android/iOS 동일 영상 결과 비교.
+1. Flutter iOS 앱이 기본 화면 흐름으로 실행되는지 확인. (2026-07-07 완료)
+2. iOS 로컬 영상 선택 및 앱 캐시 복사 구현. (2026-07-07 기본 `file_picker` 흐름으로 확인)
+3. 첫 프레임 ROI 표시 구현. (2026-07-07 `AVAssetImageGenerator` 기반으로 확인)
+4. HSV 미리보기 구현. (2026-07-07 1차 확인)
+5. HSV 원본/검출 전환 및 검출 비율 표시 확인. (2026-07-07 1차 확인)
+6. 마커 중심 설정 후 변위 계산 구현. (2026-07-07 OpenCV iOS 1차 연결 및 실기기 흐름 확인)
+7. 변위 계산 진행률 EventChannel 구현. (2026-07-07 1차 연결)
+8. CSV 저장 및 share sheet 내보내기 구현. (2026-07-07 1차 연결)
+9. 모델 추론 구현. (2026-07-07 PyTorch Lite iOS 1차 연결 및 실기기 흐름 확인)
+10. Android/iOS 동일 영상 결과 비교. (진행 필요: IR 1건 iOS OR 판정 사례 우선)
 
 ## 8. iOS 구현 시 유지해야 할 계약
 

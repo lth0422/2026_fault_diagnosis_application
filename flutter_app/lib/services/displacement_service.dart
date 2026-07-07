@@ -8,8 +8,8 @@ import '../models/displacement_result.dart';
 
 /// 변위(DisplacementZ) 계산 서비스.
 ///
-/// Android에서는 OpenCV 네이티브 MethodChannel로 마커 추적 기반 변위를 계산한다.
-/// iOS 구현 전까지 비 Android 환경에서는 [mockResult]를 fallback으로 사용한다.
+/// Android/iOS에서는 OpenCV 네이티브 MethodChannel로 마커 추적 기반 변위를 계산한다.
+/// 데스크톱/웹 등 미구현 플랫폼에서는 [mockResult]를 fallback으로 사용한다.
 class DisplacementService {
   static const MethodChannel _channel = MethodChannel(
     'fault_diagnosis/displacement',
@@ -47,7 +47,9 @@ class DisplacementService {
 
   Future<DisplacementResult> computeDisplacement(
       DiagnosisSession session) async {
-    if (defaultTargetPlatform != TargetPlatform.android) {
+    final isNativeSupported = defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+    if (!isNativeSupported) {
       return mockResult();
     }
 
@@ -86,7 +88,10 @@ class DisplacementService {
         'vMax': hsvRange.vMax,
         'markerX': center.dx,
         'markerY': center.dy,
+        'markerXRatio': marker.normalizedCenter?.dx,
+        'markerYRatio': marker.normalizedCenter?.dy,
         'trackingBoxSize': marker.trackingBoxSize,
+        'trackingBoxSizeRatio': marker.normalizedTrackingBoxSize,
         'fps': videoInfo.fps,
       },
     );

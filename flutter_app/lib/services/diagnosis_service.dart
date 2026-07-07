@@ -7,15 +7,17 @@ import '../models/diagnosis_result.dart';
 
 /// 결함 진단 서비스.
 ///
-/// Android에서는 PyTorch Mobile Lite 모델(`Fwdcnn7.ptl`)을 네이티브 채널로 실행한다.
-/// iOS 구현 전까지 비 Android 환경에서는 [mockResult]를 fallback으로 사용한다.
+/// Android/iOS에서는 PyTorch Mobile Lite 모델(`Fwdcnn7.ptl`)을 네이티브 채널로 실행한다.
+/// 데스크톱/웹 등 미구현 플랫폼에서는 [mockResult]를 fallback으로 사용한다.
 /// 클래스 순서는 항상 B, H, IR, OR 을 따른다.
 class DiagnosisService {
   static const MethodChannel _channel = MethodChannel('fault_diagnosis/model');
 
   /// 모델 입력: DisplacementZ (길이 2048, 형상 [1, 1, 2048]).
   Future<DiagnosisResult> diagnose(List<double> displacementZ) async {
-    if (defaultTargetPlatform != TargetPlatform.android) {
+    final isNativeSupported = defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+    if (!isNativeSupported) {
       return mockResult();
     }
     if (displacementZ.length != 2048) {

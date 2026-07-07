@@ -1,0 +1,52 @@
+PODS:
+  - Flutter (1.0.0)
+  - LibTorch-Lite (2.1.0):
+    - LibTorch-Lite/Core (= 2.1.0)
+  - LibTorch-Lite/Core (2.1.0):
+    - LibTorch-Lite/Torch
+  - LibTorch-Lite/Torch (2.1.0)
+  - libwebp (1.5.0):
+    - libwebp/demux (= 1.5.0)
+    - libwebp/mux (= 1.5.0)
+    - libwebp/sharpyuv (= 1.5.0)
+    - libwebp/webp (= 1.5.0)
+  - libwebp/demux (1.5.0):
+    - libwebp/webp
+  - libwebp/mux (1.5.0):
+    - libwebp/demux
+  - libwebp/sharpyuv (1.5.0)
+  - libwebp/webp (1.5.0):
+    - libwebp/sharpyuv
+  - OpenCV2 (4.3.0)
+  - video_thumbnail (0.0.1):
+    - Flutter
+    - libwebp
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - LibTorch-Lite
+  - OpenCV2
+  - video_thumbnail (from `.symlinks/plugins/video_thumbnail/ios`)
+
+SPEC REPOS:
+  trunk:
+    - LibTorch-Lite
+    - libwebp
+    - OpenCV2
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  video_thumbnail:
+    :path: ".symlinks/plugins/video_thumbnail/ios"
+
+SPEC CHECKSUMS:
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  LibTorch-Lite: ab75e4e60244786473c2e8f268c09af77240d127
+  libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
+  OpenCV2: ffe82e5cb5d16dc3fc01a5f4127b9a5b3cfc7d1b
+  video_thumbnail: b637e0ad5f588ca9945f6e2c927f73a69a661140
+
+PODFILE CHECKSUM: 3ca8678ec86c1545ab86bcc49148c17fb209e6a4
+
+COCOAPODS: 1.16.2
