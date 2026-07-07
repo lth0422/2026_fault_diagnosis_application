@@ -6,7 +6,7 @@ void main() {
   testWidgets('shows start page', (WidgetTester tester) async {
     await tester.pumpWidget(const FaultDiagnosisApp());
 
-    expect(find.text('결함 진단 애플리케이션'), findsOneWidget);
-    expect(find.text('시작하기'), findsOneWidget);
+    expect(find.text('회전기계 베어링 결함 진단'), findsOneWidget);
+    expect(find.text('결함 진단 시작하기', skipOffstage: false), findsOneWidget);
   });
 }
