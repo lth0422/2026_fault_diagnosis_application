@@ -25,6 +25,9 @@ class _VideoInfoPageState extends State<VideoInfoPage> {
   final _heightController = TextEditingController();
   final _fpsController = TextEditingController();
   bool _isLoadingMetadata = false;
+  bool _hasEditedResolution = false;
+  bool _hasConfirmed = false;
+  (int, int)? _selectedResolution;
   String? _metadataError;
 
   @override
@@ -90,8 +93,14 @@ class _VideoInfoPageState extends State<VideoInfoPage> {
         return;
       }
 
+      if (_hasConfirmed) {
+        return;
+      }
+
       context.read<DiagnosisSession>().setVideoInfo(loaded);
-      _applyVideoInfo(loaded);
+      if (!_hasEditedResolution) {
+        _applyVideoInfo(loaded);
+      }
     } catch (error) {
       if (!mounted) {
         return;
@@ -107,8 +116,22 @@ class _VideoInfoPageState extends State<VideoInfoPage> {
   }
 
   void _applyResolution(int width, int height) {
-    _widthController.text = '$width';
-    _heightController.text = '$height';
+    setState(() {
+      _hasEditedResolution = true;
+      _selectedResolution = (width, height);
+      _widthController.text = '$width';
+      _heightController.text = '$height';
+    });
+  }
+
+  void _onResolutionChanged(String _) {
+    if (_hasEditedResolution && _selectedResolution == null) {
+      return;
+    }
+    setState(() {
+      _hasEditedResolution = true;
+      _selectedResolution = null;
+    });
   }
 
   void _applyFps(int fps) => _fpsController.text = '$fps';
@@ -142,6 +165,7 @@ class _VideoInfoPageState extends State<VideoInfoPage> {
         frameCount: frameCount,
       ),
     );
+    _hasConfirmed = true;
     Navigator.pushNamed(context, RoiSettingPage.routeName);
   }
 
@@ -189,8 +213,16 @@ class _VideoInfoPageState extends State<VideoInfoPage> {
             Expanded(
               child: ListView(
                 children: [
-                  _field('가로 (width)', _widthController),
-                  _field('세로 (height)', _heightController),
+                  _field(
+                    '가로 (width)',
+                    _widthController,
+                    onChanged: _onResolutionChanged,
+                  ),
+                  _field(
+                    '세로 (height)',
+                    _heightController,
+                    onChanged: _onResolutionChanged,
+                  ),
                   _field('FPS', _fpsController),
                   const SizedBox(height: 8),
                   const Text('해상도 프리셋'),
@@ -198,20 +230,24 @@ class _VideoInfoPageState extends State<VideoInfoPage> {
                     spacing: 8,
                     children: [
                       OutlinedButton(
-                        onPressed: () => _applyResolution(1080, 1920),
-                        child: const Text('1080p 세로'),
-                      ),
-                      OutlinedButton(
                         onPressed: () => _applyResolution(1920, 1080),
-                        child: const Text('1080p 가로'),
+                        style: _resolutionButtonStyle(1920, 1080),
+                        child: const Text('1080 세로 (1920x1080)'),
                       ),
                       OutlinedButton(
-                        onPressed: () => _applyResolution(720, 1280),
-                        child: const Text('720p 세로'),
+                        onPressed: () => _applyResolution(1080, 1920),
+                        style: _resolutionButtonStyle(1080, 1920),
+                        child: const Text('1080 가로 (1080x1920)'),
                       ),
                       OutlinedButton(
                         onPressed: () => _applyResolution(1280, 720),
-                        child: const Text('720p 가로'),
+                        style: _resolutionButtonStyle(1280, 720),
+                        child: const Text('720 세로 (1280x720)'),
+                      ),
+                      OutlinedButton(
+                        onPressed: () => _applyResolution(720, 1280),
+                        style: _resolutionButtonStyle(720, 1280),
+                        child: const Text('720 가로 (720x1280)'),
                       ),
                     ],
                   ),
@@ -244,11 +280,26 @@ class _VideoInfoPageState extends State<VideoInfoPage> {
     );
   }
 
-  Widget _field(String label, TextEditingController controller) {
+  ButtonStyle? _resolutionButtonStyle(int width, int height) {
+    if (_selectedResolution != (width, height)) {
+      return null;
+    }
+    return OutlinedButton.styleFrom(
+      foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+    );
+  }
+
+  Widget _field(
+    String label,
+    TextEditingController controller, {
+    ValueChanged<String>? onChanged,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: TextField(
         controller: controller,
+        onChanged: onChanged,
         keyboardType: TextInputType.number,
         decoration: InputDecoration(
           labelText: label,
