@@ -1,0 +1,9 @@
+# PDF 논문 파일 (papers/ 디렉토리에 로컬 보관, git 추적 제외)
+*.pdf
+
+# macOS
+.DS_Store
+
+# 편집기
+.vscode/
+.idea/
