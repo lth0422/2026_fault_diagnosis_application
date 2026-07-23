@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-07-23 — B/F 블록 추가 정독 (240fps 검증 + 비정상조건)
+
+**작업 내용**
+- F: Validity/reliability of smartphone 240fps camera + Kinovea (JHSE 2021) 정독.
+- B: Vision-based bearing fault diagnosis under non-stationary conditions (RESS 2025) 정독.
+
+**핵심 발견 (fps 분석 보강)**
+- 240fps 검증: **우리와 거의 동일 셋업**(Redmi Note 8, 240fps, 대비색 마커, 삼각대 150cm)으로 LPT 대비 ICC 0.99+. 단 바벨(<5Hz) → "240fps는 저주파 계측엔 타당" 확인. 우리 계측 자체는 문제없고, 문제는 대역.
+- RESS 비정상조건: "vision bearing diagnosis"인데 **영상(120fps)은 회전/order 추적만**, 실제 결함주파수(~150Hz)는 가속도계로 검증. → 영상=속도 정보, 결함 임펄스 별도. 가변속도엔 order 분석이 유효 방향.
+
+**수정 파일**
+- `docs/related_works.md` (F 240fps·B RESS 정독 반영)
+- `docs/fps_temporal_resolution_analysis.md` (보강 관찰 2건 + fps표 추가)
+- `docs/development_log.md`
+
+**정독 누계**: 16편 (54편 중). B: 4/10, F: 4/10.
+
+---
+
 ## 2026-07-23 — fps/시간해상도 분석 (M3, B3 정독)
 
 **방향**: 사용자 통찰 — 스마트폰은 fps가 부족해 기존 카메라 기반과 근본적으로 다름.

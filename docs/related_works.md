@@ -135,7 +135,7 @@
 
 | 제목 | 출처 | 비고 |
 |------|------|------|
-| Vision-based bearing fault diagnosis under non-stationary conditions using optimized short-time concentrated transform | RESS, 2025 | 고속카메라+LK optical flow, **비정상(가변 RPM)** 조건 |
+| Vision-based bearing fault diagnosis under non-stationary conditions using optimized short-time concentrated transform | RESS, 2025 | ✅정독. LK optical flow+템플릿매칭→OSTCT 시간주파수 능선→**order 분석**→결함판정. **영상은 120fps로 저주파 회전/차수 추적만**(시뮬 15~35Hz). 실제 베어링 결함주파수(~150Hz)는 **Ottawa 가속도계 데이터로 검증**(영상 아님). → 영상=속도/order 정보, 결함 임펄스 못 잡음. **우리 fps 한계 재확인** |
 | Dynamic Vision-Based Non-Contact Rotating Machine Fault Diagnosis with EViT | Sensors, 2025 | 이벤트카메라+Event Vision Transformer |
 | Dynamic vision-based machine vibration sensing with signal alignment and feature clustering | Eng. Appl. AI, 2025 | 이벤트카메라 |
 | Vibration Vision: Real-Time Machinery Fault Diagnosis with Event Cameras | ECCV workshop | 실시간 |
@@ -160,7 +160,7 @@
 
 | 제목 | 출처 | 분야 | 비고 |
 |------|------|------|------|
-| Validity and reliability of smartphone high-speed camera and Kinovea for velocity-based training measurement | 스포츠과학 | 스포츠 바이오메카닉스 | **240fps 스마트폰**이 기준장비와 거의 완전 일치 검증 — 타 분야 계측 타당성 근거 |
+| Validity and reliability of smartphone high-speed camera and Kinovea for velocity-based training measurement | J. Human Sport Ex., 2021 | 스포츠 바이오메카닉스 | ✅정독. **우리와 거의 동일 셋업**(Redmi Note 8, 240fps 슬로모션, 대비색 마커, 삼각대 150cm, Kinovea). LPT(1000Hz) 대비 **ICC 0.99+**(거의 완벽), 평균차 RB 1.11mm. 단 저주파(바벨 <5Hz) 계측 → **"240fps는 저주파 계측엔 타당"** 확인(fps 분석과 일관). 저비용(예산폰) novelty 근거 |
 
 > 관찰: 영상 기반 베어링 진단(W-A/W-B)은 거의 다 **산업용 고속·이벤트 카메라**. 스마트폰 계측(W-C/W-D)은 거의 다 **구조물(SHM)·스포츠·회전속도**. → "스마트폰 슬로모션 + 베어링 결함 분류 + 온디바이스 DL" 교집합이 비어 있음(우리 위치 재확인).
 
