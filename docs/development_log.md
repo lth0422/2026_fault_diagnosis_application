@@ -4,6 +4,32 @@
 
 ---
 
+## 2026-07-23 — fps/시간해상도 분석 (M3, B3 정독)
+
+**방향**: 사용자 통찰 — 스마트폰은 fps가 부족해 기존 카메라 기반과 근본적으로 다름.
+
+**작업 내용**
+- M3(Zhao, Sensors 2023, EVMM 회전기계) + B3(Zhou, MST 2026, 고속비디오 베어링) 정독.
+- `docs/fps_temporal_resolution_analysis.md` 신규: fps 비교표 + 베어링 결함주파수 vs Nyquist 정량 분석.
+
+**핵심 발견 (강력)**
+- 베어링 결함 분류 영상연구는 예외없이 **1000~5000fps 또는 이벤트카메라**. B3=**5000fps**(Nyquist 2500Hz), M3=1000fps.
+- 베어링 결함주파수: 1800rpm에서 BPFO~126/BPFI~204Hz. **우리 240fps Nyquist=120Hz로는 포착 불가.**
+- 1200rpm에서도 BPFI~136Hz > 120Hz → 앨리어싱. **단일 1200RPM이 사실상 fps 천장 결과**일 수 있음.
+- M3는 1000fps인데도 1×/2×(24~48Hz) 저주파만 분석 → 영상법은 태생적으로 저주파 편향.
+- 우리는 DisplacementZ(변위=가속도/ω², 저주파 강조) + 저fps → 둘 다 저주파. **저주파에 판별정보 있는지가 핵심 질문**(누수 분석과 직결).
+- 프레이밍: 한계(고주파 못봄)이자 차별점(저fps·저비용 미개척 영역 규명).
+
+**생성/수정 파일**
+- `docs/fps_temporal_resolution_analysis.md` (신규)
+- `docs/related_works.md` (B3/M3 정독·fps 반영)
+- `docs/research_gaps_and_limitations.md` (3.3 fps/Nyquist 한계 추가)
+- `docs/development_log.md`
+
+**정독 누계**: 14편 (54편 중). B: 3/10(B1,B3 +Peng는 A/B겸), M: 2/4.
+
+---
+
 ## 2026-07-23 — 조명 강건성 + 마커리스 기반기술 정독
 
 **작업 내용**

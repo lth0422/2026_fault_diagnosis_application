@@ -35,7 +35,7 @@
 |---|------|------|-----:|--------|------|
 | B1 | Intelligent Machinery Fault Diagnosis With Event-Based Camera | IEEE TII, 2024 | **170** | 이벤트 카메라(Prophesee Gen3.1, 640×480) | ✅정독. 이벤트→2채널 표현→DCNN + 증강 + 표현클러스터링. 4클래스, **3속도(1200/1800/2400rpm)**. **정직한 수치: 이벤트-비전 95.4~98.2%, 가속도계 98.9~99.5%**(가속도계가 더 높음). 교차조건(train/test 조건 다름) 82~85%로 하락. **논문 스스로 "조명 조건이 최대 약점"이라 인정** |
 | B2 | Non-Contact Machine Vibration Sensing and Fault Diagnosis Based on Event Camera | IEEE, 2023 | 15 | 이벤트 카메라 | 누적프레임+Gabor필터→웨이블릿패킷+포락스펙트럼, 베어링 검증 |
-| B3 | Vision-based non-contact vibration measurement and fault diagnosis of rolling bearings | Meas. Sci. Technol., 2025 | 4 | **고속비디오** | 복소 제어피라미드+프레임간 위상차→진동재구성→**Quadratic CNN**, 조명·노이즈 강건성 검증 |
+| B3 | Vision-based non-contact vibration measurement and fault diagnosis of rolling bearings | Meas. Sci. Technol., 2026 | 4 | 고속비디오 **5000fps** | ✅정독. **우리와 최유사 경쟁군**(영상→위상→CNN, 4클래스 IF/OF/BF/NO). CCP(복소제어피라미드) 위상차→QCNN. NU/N204EM(11/12롤러), EDM결함 3깊이, 1800~2400rpm. **5000fps(Nyquist 2500Hz)로 BPFO~126/BPFI~204Hz@1800rpm 포착.** 가속도계 8192Hz·레이저 20kHz 참조. → **우리 240fps로는 불가능한 대역** ([fps 분석](fps_temporal_resolution_analysis.md)) |
 | B4 | Dynamic Vision-Enabled Intelligent Micro-Vibration Estimation with Spatiotemporal Pattern Consistency | IEEE/CAA JAS, 2025 | 6 | 이벤트 카메라 | 시공간 패턴 일관성, 다중 ROI 융합 |
 | B5 | Multimodal LLM-Enabled Machine Fault Diagnosis with Non-Contact Dynamic Vision Data | Sensors, 2025 | 11 | 이벤트 카메라 | Qwen2.5-VL-7B LoRA 미세조정, **3운전조건·4RPM, 정확도 95.4%** |
 | B6 | Non-contact condition monitoring via phase-synchronized stroboscopic imaging | Struct. Health Monit., 2026 | 0 | **저가 이미징+스트로보** | 위상동기 스트로보+phase optical flow, 볼트풀림/불평형/축정렬불량 분류, **마커 사용** |
@@ -96,7 +96,7 @@
 |---|------|------|------|
 | M1 | **Phase-Based Video Motion Processing** (Wadhwa et al.) | ACM TOG(SIGGRAPH), 2013 | ✅정독. **마커리스 위상기반 모션처리의 원조.** 복소 steerable pyramid의 국소 위상변화=운동 → optical flow 없이 미세운동 증폭/감쇠. Eulerian(Wu2012) 대비 큰 배율+노이즈 강건. **Fig9: 망치 가진 실험서 영상 위상→변위→가속도가 접촉식 가속도계와 일치**(우리 DisplacementZ 접근의 물리적 정당성 선례). 512²×300프레임 ~56s(온디바이스 부하 고려점) |
 | M2 | Video Motion Magnification to Improve Vision-Based Vibration Measurements | (조사중) | 미정독 |
-| M3 | Research on Rotating Machinery Fault Diagnosis Based on Improved Eulerian Video Motion Magnification | (조사중) | 미정독. **회전기계 결함진단+EVMM** — 우리와 직접 관련 |
+| M3 | Research on Rotating Machinery Fault Diagnosis Based on Improved Eulerian Video Motion Magnification | Sensors, 2023 | ✅정독. EVMM+HSV 자동 공간cutoff. KEYENCE **1000fps**, 1446rpm. **핵심: 1000fps인데도 1×/2×(24~48Hz) 저주파만 분석**(불평형·정렬불량·볼트풀림 등 로터/장착 결함, 베어링 임펄스 아님) → 영상법의 저주파 편향 근거. JDI930 vibrometer 검증 |
 | M4 | Motion Magnification of Vibration Image in Estimation of Technical Object Condition (Review) | (조사중) | 미정독. 리뷰 |
 
 ---

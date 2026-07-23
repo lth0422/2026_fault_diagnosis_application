@@ -98,6 +98,7 @@
 
 | 항목 | 내용 |
 |------|------|
+| **⚠ fps/Nyquist 한계** | 스마트폰 240fps → **Nyquist 120Hz**. 베어링 결함주파수(BPFO~84/BPFI~136Hz@1200rpm)와 고조파를 원리적으로 못 잡음. 기존 영상 진단은 1000~5000fps 사용(B3=5000fps). **단일 1200RPM은 사실상 fps 천장에 걸린 결과**일 수 있음. 상세: [fps_temporal_resolution_analysis.md](fps_temporal_resolution_analysis.md) |
 | **단일 RPM** | 1200 RPM 고정 조건만 실험 — 가변 속도, 기동/정지 과도 구간 미평가 |
 | **고정 조명** | 연속광(Continuous Light) 사용 → 형광등, 자연광, 역광 환경 미검증 |
 | **카메라 고정** | 삼각대 고정 촬영 → 핸드헬드 흔들림, 촬영 각도 변화 미검증 |
