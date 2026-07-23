@@ -33,7 +33,7 @@
 
 | # | 제목 | 출처 | 인용 | 카메라 | 방법·정확도 |
 |---|------|------|-----:|--------|------|
-| B1 | Intelligent Machinery Fault Diagnosis With Event-Based Camera | IEEE TII, 2024 | **170** | 이벤트 카메라 | 진동 이벤트 표현→DCNN, 데이터증강+표현클러스터링, 가속도계급 정확도 |
+| B1 | Intelligent Machinery Fault Diagnosis With Event-Based Camera | IEEE TII, 2024 | **170** | 이벤트 카메라(Prophesee Gen3.1, 640×480) | ✅정독. 이벤트→2채널 표현→DCNN + 증강 + 표현클러스터링. 4클래스, **3속도(1200/1800/2400rpm)**. **정직한 수치: 이벤트-비전 95.4~98.2%, 가속도계 98.9~99.5%**(가속도계가 더 높음). 교차조건(train/test 조건 다름) 82~85%로 하락. **논문 스스로 "조명 조건이 최대 약점"이라 인정** |
 | B2 | Non-Contact Machine Vibration Sensing and Fault Diagnosis Based on Event Camera | IEEE, 2023 | 15 | 이벤트 카메라 | 누적프레임+Gabor필터→웨이블릿패킷+포락스펙트럼, 베어링 검증 |
 | B3 | Vision-based non-contact vibration measurement and fault diagnosis of rolling bearings | Meas. Sci. Technol., 2025 | 4 | **고속비디오** | 복소 제어피라미드+프레임간 위상차→진동재구성→**Quadratic CNN**, 조명·노이즈 강건성 검증 |
 | B4 | Dynamic Vision-Enabled Intelligent Micro-Vibration Estimation with Spatiotemporal Pattern Consistency | IEEE/CAA JAS, 2025 | 6 | 이벤트 카메라 | 시공간 패턴 일관성, 다중 ROI 융합 |
@@ -64,7 +64,7 @@
 | D1 | A New Deep Transfer Learning Method for Bearing Fault Diagnosis Under Different Working Conditions | IEEE Sensors J., 2020 | **261** | CNN 전이학습, 다중 가우시안 커널 도메인 손실 |
 | D2 | Deep Semi-supervised Domain Generalization Network under Variable Speed | IEEE TIM, 2020 | **174** | 가변속도, WGAN-GP 적대학습+의사라벨, 미지 속도로 일반화 |
 | D3 | A deep CNN with new training methods (**TICNN**) under noisy environment and different working load | MSSP, 2018 | **1033** | ✅정독. **주의: WDCNN 아님 = TICNN**(WDCNN 후속작). 넓은 첫 커널(64×1)로 고주파 잡음 억제 + 커널 dropout + small mini-batch + ensemble. WDCNN은 baseline(도메인적응 avg 90%, TICNN 95.5%). **핵심: overlap 증강은 train만, test는 비중첩 유지→누수 방지** |
-| D3′ | **A New Deep Learning Model … Good Anti-Noise and Domain Adaptation (WDCNN 원논문)** | Sensors, 2017 | - | ⚠ 우리 참고문헌 [2] = **우리 모델의 실제 원조.** 파일이 `papers/Block A/`에 오분류 보관됨. 미정독(다음 우선순위) |
+| D3′ | **A New Deep Learning Model … Good Anti-Noise and Domain Adaptation (WDCNN 원논문)** | Sensors, 2017 | - | ✅정독. 우리 참고문헌 [2] = **우리 모델의 실제 원조.** 구조: 입력 2048×1, **첫 층 wide 커널 64×1(stride 16/8)로 고주파 잡음 억제** → 3×1 small 커널 5개 conv+pool → FC100 → softmax10, 각 층 BN+ReLU+Adam. AdaBN 도메인적응. CWRU 10클래스. **핵심: overlap 증강은 train만, test 비중첩 명시(4.1절)**. 데이터 많이 필요(90샘플 82%→19800샘플 100%) |
 | D4 | Deep Transfer Learning for Bearing Fault Diagnosis: A Systematic Review Since 2016 | IEEE TIM, 2023 | **475** | **서베이**: 라벨/기기/결함 관점 태스노미 |
 | D5 | Bearing fault diagnosis under variable speed based on time series mixup and unsupervised DA | Meas. Sci. Technol., 2025 | 7 | 가변속도, 시계열 Mixup+비지도 도메인적응, 평균 92%+ |
 | D6 | A bearing fault diagnosis integrating few-shot learning and transfer learning | Sci. Reports, 2025 | 4 | **Siamese-WDCNN** 퓨샷+전이, CWRU 사전학습→산업데이터 미세조정, 85~89% |

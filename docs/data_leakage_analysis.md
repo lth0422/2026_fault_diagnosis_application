@@ -72,12 +72,22 @@
 
 ### 결정적 근거: WDCNN 저자 본인의 관행
 
-우리 모델의 원조인 WDCNN/TICNN 저자(Zhang et al., MSSP 2018)조차 overlap 증강을 쓸 때
-**"training 샘플만 중첩시키고 test 샘플끼리는 중첩이 없도록"** 명시적으로 분리했다
-(D3 논문 Fig.4, 4.1절: *"the training samples are overlapped to augment data and there is no
-overlap among the test samples"*). 즉 **중첩 증강 후 무작위 분할은 원저자도 피한 방식**이다.
+우리 모델의 원조인 WDCNN 저자(Zhang et al.)조차 overlap 증강을 쓸 때
+**"training 샘플만 중첩시키고 test 샘플끼리는 중첩이 없도록"** 명시적으로 분리했다.
+이는 **WDCNN 원논문(Sensors 2017, 4.1절)과 후속작 TICNN(MSSP 2018, 4.1절) 양쪽에서
+동일하게 명시**된다: *"the training samples are overlapped to augment data and there is no
+overlap among the test samples."* 즉 **중첩 증강 후 무작위 분할은 원저자가 이중으로 피한 방식**이다.
 만약 우리가 전체를 중첩 증강한 뒤 10-fold를 무작위로 나눴다면, 원조 논문 관행보다도
 느슨한 평가가 된다. → 최소한 이 부분은 반드시 확인·수정해야 한다.
+
+### 방증: 우리 정확도가 가속도계보다 높다는 이상 신호
+
+엄격한 IEEE TII 논문(Li et al., 2024, 170회 인용, 이벤트 카메라)은 같은 4클래스 베어링에서
+**영상(이벤트)-비전 95.4~98.2%, 접촉식 가속도계 98.9~99.5%**로 보고한다 — 즉 **비접촉 영상이
+접촉식 센서보다 낮은 것이 정상**이다. 영상은 프레임레이트·공간해상도 한계로 미세 진동 포착이
+가속도계보다 어렵기 때문. 그런데 우리 논문은 영상 기반 DisplacementZ로 **99.7%**를 보고했다.
+이는 접촉식 가속도계급을 뛰어넘는 수치로, 물리적으로 기대하기 어려운 낙관값이며 **누수 신호**로
+볼 수 있다. (교차조건에서는 그 TII 논문도 82~85%로 하락 → 조건 다양성이 관건.)
 
 ---
 

@@ -4,6 +4,29 @@
 
 ---
 
+## 2026-07-23 — 추가 논문 2편 정독 (WDCNN 원논문, 이벤트 카메라)
+
+**작업 내용**
+- WDCNN 원논문(Zhang, Sensors 2017 = 참고문헌[2], 우리 모델 원조) 정독.
+- Intelligent Machinery Fault Diagnosis With Event-Based Camera (IEEE TII 2024, 170회) 정독.
+
+**핵심 발견**
+- WDCNN 구조 확인: 입력 2048×1, 첫 층 wide 커널 64×1으로 고주파 잡음 억제 → 3×1 small 커널 5층 → FC100 → softmax10, BN+ReLU+Adam, AdaBN.
+- **overlap 증강 train-only 원칙이 WDCNN(2017)+TICNN(2018) 양쪽에서 이중 확인** → 우리 누수 주장 강화.
+- WDCNN은 대량 데이터 필요(90샘플 82% → 19800샘플 100%). 우리 1060샘플은 소규모.
+- 이벤트 카메라 논문(엄격한 IEEE TII): **영상-비전 95~98% < 가속도계 98.9~99.5%**가 정상.
+  우리 영상 기반 99.7%는 가속도계급 초과 → 물리적으로 이상, 누수 방증. 교차조건 82~85%로 하락.
+  이벤트 카메라도 "조명이 최대 약점"이라 자인.
+
+**수정 파일**
+- `docs/data_leakage_analysis.md` (WDCNN 이중확인, 가속도계 비교 방증 추가)
+- `docs/related_works.md` (D3′ WDCNN·B1 이벤트카메라 정독 반영)
+- `docs/development_log.md`
+
+**정독 누계**: E1, E2, D3(TICNN), A(visual), C2, D3′(WDCNN원논문), B1(이벤트카메라) = 7편.
+
+---
+
 ## 2026-07-23 — 우선순위 논문 5편 정독 및 데이터 누수 분석
 
 **작업 내용**
