@@ -37,7 +37,7 @@
 | B2 | Non-Contact Machine Vibration Sensing and Fault Diagnosis Based on Event Camera | IEEE, 2023 | 15 | 이벤트 카메라 | 누적프레임+Gabor필터→웨이블릿패킷+포락스펙트럼, 베어링 검증 |
 | B3 | Vision-based non-contact vibration measurement and fault diagnosis of rolling bearings | Meas. Sci. Technol., 2026 | 4 | 고속비디오 **5000fps** | ✅정독. **우리와 최유사 경쟁군**(영상→위상→CNN, 4클래스 IF/OF/BF/NO). CCP(복소제어피라미드) 위상차→QCNN. NU/N204EM(11/12롤러), EDM결함 3깊이, 1800~2400rpm. **5000fps(Nyquist 2500Hz)로 BPFO~126/BPFI~204Hz@1800rpm 포착.** 가속도계 8192Hz·레이저 20kHz 참조. → **우리 240fps로는 불가능한 대역** ([fps 분석](fps_temporal_resolution_analysis.md)) |
 | B4 | Dynamic Vision-Enabled Intelligent Micro-Vibration Estimation with Spatiotemporal Pattern Consistency | IEEE/CAA JAS, 2025 | 6 | 이벤트 카메라 | 시공간 패턴 일관성, 다중 ROI 융합 |
-| B5 | Multimodal LLM-Enabled Machine Fault Diagnosis with Non-Contact Dynamic Vision Data | Sensors, 2025 | 11 | 이벤트 카메라 | Qwen2.5-VL-7B LoRA 미세조정, **3운전조건·4RPM, 정확도 95.4%** |
+| B5 | Multimodal LLM-Enabled Machine Fault Diagnosis with Non-Contact Dynamic Vision Data | Sensors, 2025 | 11 | 이벤트 카메라 | ✅정독. 이벤트→time surface→video→**Qwen2.5-VL-7B LoRA**. 3클래스(N/InnerH/OuterH), **4속도 5·8·10·15Hz(300~900rpm, 저속)**, 20cm 직각, 회전속도를 instruction에 주입. 95.40%. **단 이벤트카메라+7B LLM 필요=무거움** → 우리 스마트폰+경량 WDCNN이 배포성 우위 |
 | B6 | Non-contact condition monitoring via phase-synchronized stroboscopic imaging | Struct. Health Monit., 2026 | 0 | **저가 이미징+스트로보** | 위상동기 스트로보+phase optical flow, 볼트풀림/불평형/축정렬불량 분류, **마커 사용** |
 
 ---
@@ -51,7 +51,7 @@
 | C1 | Line segment tracking for camera-based vibration measurement of large structures outdoors | MSSP, 2025 | 0 | **조명 변화** (DIC/LK 대비 ROI 내 조명 영향 최소화), 실외, 3D 변위 |
 | C2 | Video-Based Micro-Vibration Measurement for Hydraulic Structures in Field Environments | Earthq. Eng. Resil., 2025 | 0 | ✅정독. 카메라 SH3-204, 1920×680, **1000fps**, 400mm 줌, 10~30m 거리, 25s. 6조건(촬영각도 side/flow/bottom × scale local/global)을 **상관계수**로 평가(Table3). **핵심 결론: ①조명이 가장 중요(불균일→추출 실패) ②local(근접/줌)≫global ③진동방향과 직각 촬영 필수**. side-local 상관 V0.95, bottom-global은 주파수 검출 실패 |
 | C3 | Deep learning-based motion magnification and frames matching for structural displacement | Eng. Struct., 2025 | 2 | **저조도(low-light)**, 약한 텍스처, 이미지 노이즈. EulerMormer+Phase-ECC |
-| C4 | Vision-Based Displacement Measurement for SHM: Metrology-Oriented Review of Uncertainty Quantification | Buildings, 2026 | 0 | **서베이**: 조명·카메라 흔들림·광학난류·플랫폼 운동 등 불확도 소스 체계적 정리 |
+| C4 | Vision-Based Displacement Measurement for SHM: Metrology-Oriented Review of Uncertainty Quantification | Buildings, 2026 | 0 | ✅정독. **정직한 평가 축의 methods 골격.** 영상변위법=측정시스템(측정모델+불확도예산+타당성조건+참조비교)으로 다뤄야, 대부분 RMSE만 보고. 매핑 3레벨(Level0 scale factor/L1 homography/L2 Jacobian)—**우리는 Level0(마커중심→스케일)**, 타당성조건(소ROI·직각·out-of-plane無) 명시. **"영상은 저샘플링→변위 미분해 가속도 얻으면 노이즈 증폭"**(fps 논지 뒷받침). GUM/Monte Carlo 불확도예산 템플릿 |
 
 ---
 
@@ -67,7 +67,7 @@
 | D3′ | **A New Deep Learning Model … Good Anti-Noise and Domain Adaptation (WDCNN 원논문)** | Sensors, 2017 | - | ✅정독. 우리 참고문헌 [2] = **우리 모델의 실제 원조.** 구조: 입력 2048×1, **첫 층 wide 커널 64×1(stride 16/8)로 고주파 잡음 억제** → 3×1 small 커널 5개 conv+pool → FC100 → softmax10, 각 층 BN+ReLU+Adam. AdaBN 도메인적응. CWRU 10클래스. **핵심: overlap 증강은 train만, test 비중첩 명시(4.1절)**. 데이터 많이 필요(90샘플 82%→19800샘플 100%) |
 | D4 | Deep Transfer Learning for Bearing Fault Diagnosis: A Systematic Review Since 2016 | IEEE TIM, 2023 | **475** | **서베이**: 라벨/기기/결함 관점 태스노미 |
 | D5 | Bearing fault diagnosis under variable speed based on time series mixup and unsupervised DA | Meas. Sci. Technol., 2025 | 7 | 가변속도, 시계열 Mixup+비지도 도메인적응, 평균 92%+ |
-| D6 | A bearing fault diagnosis integrating few-shot learning and transfer learning | Sci. Reports, 2025 | 4 | **Siamese-WDCNN** 퓨샷+전이, CWRU 사전학습→산업데이터 미세조정, 85~89% |
+| D6 | A bearing fault diagnosis integrating few-shot learning and transfer learning | Sci. Reports, 2025 | 4 | ✅정독. **우리 소규모데이터 해법.** Siamese-WDCNN(우리와 동일 구조: 첫층 64×1 stride16 →3×1 5층 →FC100) CWRU 사전학습→타깃 few-shot 전이. cold-start: **WDCNN 70%→FSL+TL 85%→+Attention 88.75%**(제대로 평가하면 99% 아님). "**저속일수록 결함특징 증폭**"(우리 저속영역과 일치). 1.49M params 경량 |
 
 > ⚠ **모델 계보 정정:** 우리 모델(`Fwdcnn7.ptl`) = **WDCNN**, 원논문은 Zhang *Sensors* **2017** (참고문헌 [2], 파일은 Block A 폴더에 오분류). D3(*MSSP* 2018)은 그 **후속작 TICNN**으로 WDCNN을 baseline으로 쓴다. 두 편 다 인용 권장이나 **직접 원조는 Sensors 2017**.
 
