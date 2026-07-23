@@ -134,7 +134,7 @@
 
 | 제목 | 출처 | 분야 | 비고 |
 |------|------|------|------|
-| Using a smartphone camera to analyse rotating and vibrating systems (SURVISHNO 2019 contest) | SURVISHNO, 2019 | 회전/진동 | **스마트폰 회전·진동 분석 경진대회** — 직접 관련 |
+| Using a smartphone camera to analyse rotating and vibrating systems (SURVISHNO 2019 contest) | **MSSP, 2021** | 회전/진동 | ✅정독. **novelty 축 확정 핵심.** 주장이 우리와 동일: *"주머니 속 일반 스마트폰=저비용 다채널 진동 DAQ"*. 표준 30fps + **rolling shutter를 역이용**해 프레임레이트 초과 주파수 분석. 단 **속도추정(IAS)·모달분석이지 베어링 결함 분류 아님** → 우리 gap 재확인. 핸드헬드·자동초점·중력 처짐 등 실전 이슈 언급 |
 | Monitoring cantilever beam with a vision-based algorithm and smartphone | JVE/Extrica | SHM | 스마트폰 슬로모션 고유진동수 |
 | A review of smartphone sensing for structural health monitoring | J. Civil SHM, 2025 | SHM 리뷰 | 스마트폰 센싱 종합 |
 | Review on smartphone sensing technology for SHM | Measurement, 2023 | SHM 리뷰 | |
