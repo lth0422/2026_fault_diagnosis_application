@@ -138,9 +138,9 @@
 | Monitoring cantilever beam with a vision-based algorithm and smartphone | JVE/Extrica | SHM | 스마트폰 슬로모션 고유진동수 |
 | A review of smartphone sensing for structural health monitoring | J. Civil SHM, 2025 | SHM 리뷰 | 스마트폰 센싱 종합 |
 | Review on smartphone sensing technology for SHM | Measurement, 2023 | SHM 리뷰 | |
-| A smartphone camera and built-in gyroscope for non-contact off-axis structural displacement | Measurement, 2020 | 구조 변위 | **자이로 보정으로 흔들림 대응** (우리 핸드헬드 한계 참고) |
+| A smartphone camera and built-in gyroscope for non-contact off-axis structural displacement | **Measurement, 2021** | 구조 변위 | ✅정독. **우리 "촬영 각도(off-axis)" 한계 해법**: 스마트폰 내장 자이로로 카메라-대상 회전행렬 산출→비수직 촬영 보정(각도 오차 <0.7°, 변위 오차 <0.15mm). 스마트폰 카메라 노이즈 0.05~0.2px(산업카메라<0.05보다 큼, 정직한 한계). **결론에서 "스마트폰 960fps 고속촬영+앱 실시간 추적"을 future work로 명시 → 우리 방향을 top 저널이 지목** |
 | Non-contact smartphone-based monitoring of thermally stressed structures | Sensors, 2018 | 구조 | |
-| Development of low-cost non-contact SHM system for rotating machinery | Sensors, 2018 | 회전기계 | 저비용 비접촉 |
+| Development of low-cost non-contact SHM system for rotating machinery | **R. Soc. Open Sci., 2018** | 회전기계(기어박스) | ✅정독. ⚠**스마트폰 아님**(Arduino+마이크 음향, Block F 오분류). 그래도 **저비용 경제성 근거 강력**: 제안 시스템 ~$500 vs 상용 $8000/$33000/$45000(Table6). 기어 결함 3클래스(H/RC30/RC50), NI-DAQ 대비 편차<10% |
 | Smartphone rolling-shutter effect for rotational speed measurement | (조사중) | 회전속도 | 프레임레이트 초과 회전속도 측정 |
 
 ### W-D. 타 분야 스마트폰 초고속 카메라 (240fps 계측 신뢰성 근거)

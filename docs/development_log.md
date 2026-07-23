@@ -4,6 +4,28 @@
 
 ---
 
+## 2026-07-23 — 스마트폰 계측 논문 2편 정독 (novelty·강건성 보강)
+
+**작업 내용**
+- Development of low-cost non-contact SHM for rotating machinery (R.Soc.Open Sci. 2018) 정독.
+- A smartphone camera + built-in gyroscope for off-axis structural displacement (Measurement 2021) 정독.
+
+**핵심 발견**
+- 자이로 논문: 우리 **"촬영 각도(off-axis)" 한계에 구체적 해법** — 스마트폰 내장 자이로로 촬영각도 보정.
+  스마트폰 카메라 노이즈 0.05~0.2px(산업카메라보다 큼, 정직한 한계).
+  **결론에서 "스마트폰 960fps + 앱 실시간 추적"을 future work로 명시 → 우리 방향을 top 저널이 지목**(강력한 novelty 근거).
+- 저비용 SHM 논문: ⚠스마트폰 아님(Arduino+마이크, Block F 오분류). 단 **경제성 근거 강력**(제안 $500 vs 상용 $8000~45000).
+- paper_concept에 자이로 off-axis 보정(앱 확장), future work 인용(novelty), 경제성 근거 추가.
+
+**수정 파일**
+- `docs/related_works.md` (자이로·저비용SHM 정독 반영, 오분류 표시)
+- `docs/paper_concept.md` (novelty·앱확장 보강)
+- `docs/development_log.md`
+
+**정독 누계**: 10편.
+
+---
+
 ## 2026-07-23 — SURVISHNO 정독 + 논문 컨셉 종합(건설적 재프레이밍)
 
 **방향 조정**
