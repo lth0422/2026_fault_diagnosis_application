@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-07-23 — 조명 강건성 + 마커리스 기반기술 정독
+
+**작업 내용**
+- Visual vibration measurement under uneven illumination (MSSP 2025) 정독.
+- Phase-Based Video Motion Processing (Wadhwa, ACM TOG/SIGGRAPH 2013) 정독.
+- related_works에 블록 M(Motion Magnification) 신설.
+
+**핵심 발견**
+- 조명 논문: **조명이 최대 환경요인** 재확인 + 조명-반사 분해로 mode shape 왜곡 보정(MAC 0.75→0.95).
+- Wadhwa: **마커리스 위상기반 모션처리 원조**(옵션 A 토대). Fig9에서 **영상 위상→변위→가속도가 접촉식 가속도계와 일치** → 우리 DisplacementZ 접근의 물리적 정당성 선례. 단 계산부하 고려점.
+- paper_concept 옵션A(마커리스)에 Wadhwa 정당성·조명보정 기법 근거 추가.
+
+**수정 파일**
+- `docs/related_works.md` (조명 정독 반영, 블록 M 신설)
+- `docs/paper_concept.md` (옵션 A 보강)
+- `docs/development_log.md`
+
+**정독 누계**: 12편 (54편 중).
+
+---
+
 ## 2026-07-23 — 스마트폰 계측 논문 2편 정독 (novelty·강건성 보강)
 
 **작업 내용**

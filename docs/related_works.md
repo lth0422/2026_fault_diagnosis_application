@@ -88,6 +88,19 @@
 
 ---
 
+## 블록 M — Motion Magnification (마커리스 옵션 A 기반 기술)
+
+`papers/Motion Magnification/` 폴더. 마커 없이 미세 진동을 추출·증폭하는 계보. 옵션 A의 이론적 토대.
+
+| # | 제목 | 출처 | 핵심 |
+|---|------|------|------|
+| M1 | **Phase-Based Video Motion Processing** (Wadhwa et al.) | ACM TOG(SIGGRAPH), 2013 | ✅정독. **마커리스 위상기반 모션처리의 원조.** 복소 steerable pyramid의 국소 위상변화=운동 → optical flow 없이 미세운동 증폭/감쇠. Eulerian(Wu2012) 대비 큰 배율+노이즈 강건. **Fig9: 망치 가진 실험서 영상 위상→변위→가속도가 접촉식 가속도계와 일치**(우리 DisplacementZ 접근의 물리적 정당성 선례). 512²×300프레임 ~56s(온디바이스 부하 고려점) |
+| M2 | Video Motion Magnification to Improve Vision-Based Vibration Measurements | (조사중) | 미정독 |
+| M3 | Research on Rotating Machinery Fault Diagnosis Based on Improved Eulerian Video Motion Magnification | (조사중) | 미정독. **회전기계 결함진단+EVMM** — 우리와 직접 관련 |
+| M4 | Motion Magnification of Vibration Image in Estimation of Technical Object Condition (Review) | (조사중) | 미정독. 리뷰 |
+
+---
+
 ## 신규성(Novelty) 포지셔닝
 
 | 축 | 선행 연구 대다수 | 우리 연구 |
@@ -128,7 +141,7 @@
 | Vibration Vision: Real-Time Machinery Fault Diagnosis with Event Cameras | ECCV workshop | 실시간 |
 | Micro vibration detection for rotating machinery based on visual target detection (YOLO-MVD) | SIViP, 2025 | YOLO 미세진동 검출 |
 | Image representation of vibration signals + CNN: a benchmark study | J. Vib. Control (SAGE), 2025 | 진동→이미지 변환 CNN 벤치마크 |
-| Visual vibration measurement using intensity optical flow with optical field correction under uneven illumination | MSSP, 2025 | **조명(광원이동/다중광원/그림자) 강건성** — 블록 C |
+| Visual vibration measurement using intensity optical flow with optical field correction under uneven illumination | MSSP, 2025 | ✅정독. **조명이 최대 환경요인** 재확인. 조명(L)-반사(R) 분해(log+DoG필터)로 mode shape 왜곡 one-shot 보정. **MAC 0.75→0.95**(노이즈 있어도 >0.85). 금속판·공기압축기 검증. 마커리스 optical flow용 → 옵션 A 강건성 기법 |
 
 ### W-C. 스마트폰 카메라 계측 (novelty 직접 근거) ⭐
 

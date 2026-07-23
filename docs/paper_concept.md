@@ -71,7 +71,10 @@
 3. **[보조→기여] 누수 없는 정직한 평가**
    - E1/E2 방법(recording/bearing-wise 분할, Macro AUROC) 도입.
    - "이 분야 최상위 논문들도 안 한 평가를 처음 적용" = 방법론 기여.
-4. **[선택] 마커리스 확장** — A블록(phase/optical flow) 기반. 장기 연구과제.
+4. **[선택] 마커리스 확장** — phase-based motion(Wadhwa 2013 원조)/optical flow 기반. 장기 연구과제.
+   - 물리적 정당성 선례 있음: Wadhwa Fig9(영상 위상→변위→가속도가 접촉식 가속도계와 일치).
+   - 조명 강건성 기법 확보: 조명-반사 분해(Xiong MSSP 2025, MAC 0.75→0.95).
+   - 단 온디바이스 계산부하(steerable pyramid) 고려 필요.
 5. **[선택] 모델 해석(XAI)** — Grad-CAM으로 결함 주파수 기여도 시각화.
 
 ---
