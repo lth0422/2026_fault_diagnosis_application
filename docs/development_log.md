@@ -4,6 +4,40 @@
 
 ---
 
+## 2026-07-23 — 우선순위 논문 5편 정독 및 데이터 누수 분석
+
+**작업 내용**
+- `papers/`의 블록별 PDF 55편 중 우선순위 5편 정독.
+  - E1: Impact of Data Leakage (IEEE Access 2024)
+  - E2: Towards a more realistic evaluation (MSSP 2026)
+  - D3: TICNN (MSSP 2018) — WDCNN 후속작
+  - A: A visual vibration characterization (MSSP 2023) — 우리와 최유사
+  - C2: Video-Based Micro-Vibration for Hydraulic Structures (Earthq.Eng.Resil. 2025)
+- `docs/data_leakage_analysis.md` 신규 작성: 우리 99.7% 정확도의 누수 위험 진단 + 재평가 설계.
+
+**핵심 발견**
+- 우리 데이터는 **클래스당 물리 베어링 1개** → E2 기준 bearing-wise split 불가 = 일반화 증명 불가능.
+  슬라이딩 윈도우(중첩 1024) 무작위 10-fold → **segmentation-level + bearing-level 누수 동시 존재**.
+- E1: part-to-part(베어링 단위) 분할로 바꾸면 오차 최소 0.39로 급등, 정확도 차 최대 47%p.
+- **WDCNN 저자 본인도 overlap 증강은 train에만, test는 비중첩 유지**(D3 Fig.4). 우리가 전체 증강 후
+  무작위 분할했다면 원저자 관행보다 느슨.
+- 모델 계보 정정: 우리 모델=WDCNN(Zhang Sensors 2017 = 참고문헌[2]). D3(MSSP 2018)은 후속작 TICNN.
+  WDCNN 원논문 PDF가 `papers/Block A/`에 오분류 보관됨.
+- 최유사 논문 Peng(MSSP 2023, 99.792%)도 단일 베어링+슬라이딩윈도우 → 같은 누수 위험 = 우리 기회.
+- C2: 촬영환경 강건성 평가 템플릿 확보(각도×스케일×조명→상관계수). 조명이 가장 치명적, 근접·직각 촬영 중요.
+
+**생성/수정 파일**
+- `docs/data_leakage_analysis.md` (신규)
+- `docs/related_works.md` (정독 5편 수치 반영, 모델 계보 정정)
+- `docs/research_gaps_and_limitations.md` (3.2 누수 근거, 3.3 강건성 프로토콜 보강)
+- `docs/development_log.md`
+
+**다음 단계**
+- 실제 데이터 분할 방식 확인 → 실험 3-A(분할 비교) 재현으로 누수 곡선 확보.
+- WDCNN 원논문(Sensors 2017) 정독. 남은 블록 E 논문 보강.
+
+---
+
 ## 2026-07-23 — 관련 논문 1차 조사 반영 및 문서 보강
 
 **작업 내용**

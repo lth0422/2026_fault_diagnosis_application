@@ -104,8 +104,8 @@
 | **단일 기기** | iPhone 12 Pro (240fps, 1920×1080) 만 사용 → 다른 기기·해상도·프레임레이트 미검증 |
 | **거리 고정** | 특정 촬영 거리에서만 실험 → 거리 변화에 따른 마커 검출 안정성 미검증 |
 | **배경 단순** | 실험실 배경 → 산업 현장의 복잡한 배경(기름, 먼지, 다른 기계) 미검증 |
-| **문헌 근거(강건성 평가 방법)** | *Video-Based Micro-Vibration for Hydraulic Structures* (Earthq. Eng. Resil. 2025): 조명·각도·스케일 강건성 정량 평가, **균일조명 필수·직각 촬영 중요** 가이드라인 제시. *Line Segment Tracking* (MSSP 2025): 실외 조명변화 강건. *DL motion magnification* (Eng. Struct. 2025): **저조도** 대응. → 우리 강건성 실험의 벤치마크로 활용 |
-| **향후 질문** | 거리·각도·조명·흔들림·해상도 변화에 얼마나 강한가? 위 논문들의 평가 프로토콜을 참고해 강건성 실험 설계 |
+| **문헌 근거(강건성 평가 방법)** ✅정독 | *Video-Based Micro-Vibration for Hydraulic Structures* (Earthq. Eng. Resil. 2025): 촬영각도(side/flow/bottom)×스케일(local/global) 6조건을 **상관계수**로 평가(Table3). **결론: ①조명이 가장 치명적(불균일→추출 실패) ②local(근접/줌)≫global ③진동방향과 직각 촬영 필수**. → 우리 강건성 실험의 직접 템플릿. *Line Segment Tracking*(MSSP 2025), *DL motion magnification*(Eng.Struct.2025, 저조도)도 보강 |
+| **향후 질문** | 거리·각도·조명·흔들림·해상도 변화에 얼마나 강한가? C2의 프로토콜(요소별 통제변수 → 상관계수/정확도)을 그대로 우리 실험에 적용 |
 
 ### 3.4 연구 수준 및 확장 필요성
 
