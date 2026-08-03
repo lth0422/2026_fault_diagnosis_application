@@ -4,6 +4,33 @@
 
 ---
 
+## 2026-08-03 — 오디오 모달리티 실측 검증 (D1) ⭐
+
+**작업 내용**
+- 슬로모션 영상 오디오가 결함 진단에 쓸 수 있는지 실제 파일로 검증.
+- `test_videos/1217_6204_1200_OR_F_3.mp4`(6204, 1200rpm, OR) 오디오 추출→포락선 분석.
+- imageio-ffmpeg(static) 설치, `scripts/analyze_audio.py` 재현 스크립트 작성.
+
+**핵심 결과 (긍정)**
+- 영상 59.94fps 40s, 오디오 44.1kHz AAC. **stretch 4.004배**(240/59.94, 오디오도 늘어짐).
+- 포락선(2-8kHz 밴드) 기본파 14.87Hz + 정수배 고조파 → **×4 복원 = 59.5Hz ≈ 6204 BPFO 61Hz**(라벨 OR 일치, 실제 ~1171rpm).
+- **결론: 오디오에 외륜 결함 서명 명확히 존재 → D1(카메라+마이크 멀티모달) 실현성 실증.** fps 한계를 이미 취득한 오디오로 보완 가능.
+
+**의미**
+- 240fps 영상(Nyquist 120Hz)은 BPFO 고조파(122Hz+)를 못 잡지만 오디오는 담음.
+- 추가 하드웨어·재촬영 없이 기존 영상에서 오디오만 추출하면 됨.
+
+**생성/수정 파일**
+- `docs/audio_feasibility_analysis.md` (신규)
+- `scripts/analyze_audio.py` (신규, 재현)
+- `docs/enhancement_ideas.md` (D1 실증 반영, 최우선급 승격)
+- `.gitignore`(영상/오디오), `test_videos/`(gitignore, README)
+- `docs/development_log.md`
+
+**다음**: 정상/IR/B 파일도 분석 → 클래스별 분별성(BPFI/BSF) 확인, 오디오 단독 vs 영상 vs 융합 비교.
+
+---
+
 ## 2026-08-03 — 앱·논문 강화 아이디어 다방면 정리
 
 **작업 내용**
