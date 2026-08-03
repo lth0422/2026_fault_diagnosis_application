@@ -1,6 +1,14 @@
 # PDF 논문 파일 (papers/ 디렉토리에 로컬 보관, git 추적 제외)
 *.pdf
 
+# 테스트 영상/오디오 (test_videos/ 로컬 보관, git 추적 제외 — 용량 큼)
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wav
+*.m4a
+
 # macOS
 .DS_Store
 
