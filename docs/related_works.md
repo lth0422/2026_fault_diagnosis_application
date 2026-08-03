@@ -113,6 +113,13 @@
 **핵심 gap:** "스마트폰 슬로모션 + 베어링 결함 분류 + 온디바이스 DL"의 교집합은 희소.
 **단, 저널 방어 조건 3가지:** ① 스마트폰 vs 산업카메라 성능 손실 정량화, ② 다조건 강건성(블록 C·D 기준), ③ 데이터 누수 없는 정직한 정확도(블록 E 기준).
 
+### 스마트폰 마커리스 사례 조사 (2026-08 추가)
+"마커리스로 스마트폰 측정 사례가 있나?"에 대한 조사 결과:
+- **① 스마트폰+마커리스+진동측정 = 있음(저주파 구조/모달만):** Orak & Ozturk 2018(Note8 240fps, 캔틸레버 고유진동수, 마커리스 multi-threshold), 캔틸레버+Motion Magnification(2021, 오차<4%), Law 2021(CIRP, 공작기계 tool-point visual vibrometry), SURVISHNO 2021(회전/속도/모달).
+- **② 스마트폰+베어링 진단 = 있음, 단 카메라 아니라 내장 가속도계(IMU):** Mobile device-based bearing diagnostics with varying speeds(Measurement 2022).
+- **③ 스마트폰 마커리스 카메라 + 베어링 결함 분류 = 못 찾음(빈 자리).**
+- **시사점:** 마커리스는 폰에서 **저주파 실증됨(Orak)** → Option A 기술적 가능. 하지만 **베어링(고주파+분류)은 미검증**이라 fps 문제 잔존. 교집합 ③이 우리 novelty. (상세: [fps_temporal_resolution_analysis.md], [paper_concept.md])
+
 ---
 
 ## 웹 검색 보강 (Claude WebSearch, 라이너 CSV 미포함분)
@@ -148,7 +155,7 @@
 | 제목 | 출처 | 분야 | 비고 |
 |------|------|------|------|
 | Using a smartphone camera to analyse rotating and vibrating systems (SURVISHNO 2019 contest) | **MSSP, 2021** | 회전/진동 | ✅정독. **novelty 축 확정 핵심.** 주장이 우리와 동일: *"주머니 속 일반 스마트폰=저비용 다채널 진동 DAQ"*. 표준 30fps + **rolling shutter를 역이용**해 프레임레이트 초과 주파수 분석. 단 **속도추정(IAS)·모달분석이지 베어링 결함 분류 아님** → 우리 gap 재확인. 핸드헬드·자동초점·중력 처짐 등 실전 이슈 언급 |
-| Monitoring cantilever beam with a vision-based algorithm and smartphone | JVE/Extrica | SHM | 스마트폰 슬로모션 고유진동수 |
+| Monitoring cantilever beam with a vision-based algorithm and smartphone (Orak & Ozturk) | Vibroeng. Procedia, 2018 | SHM | ✅정독. **⭐스마트폰+마커리스 진동측정 직접 사례.** Samsung Note 8, **240fps 720p**(우리와 동급), 마커 없이 ROI 휘도 multi-threshold 서브픽셀 추적("형상·주파수 사전정보 불필요"). 캔틸레버 고유진동수 vs 가속도계 검증. *"기존은 고가 고fps 카메라, 우리는 스마트폰만으로 visual vibrometer"*. **단 저주파 구조 모달(수 Hz), 베어링 결함 아님** |
 | A review of smartphone sensing for structural health monitoring | J. Civil SHM, 2025 | SHM 리뷰 | 스마트폰 센싱 종합 |
 | Review on smartphone sensing technology for SHM | Measurement, 2023 | SHM 리뷰 | |
 | A smartphone camera and built-in gyroscope for non-contact off-axis structural displacement | **Measurement, 2021** | 구조 변위 | ✅정독. **우리 "촬영 각도(off-axis)" 한계 해법**: 스마트폰 내장 자이로로 카메라-대상 회전행렬 산출→비수직 촬영 보정(각도 오차 <0.7°, 변위 오차 <0.15mm). 스마트폰 카메라 노이즈 0.05~0.2px(산업카메라<0.05보다 큼, 정직한 한계). **결론에서 "스마트폰 960fps 고속촬영+앱 실시간 추적"을 future work로 명시 → 우리 방향을 top 저널이 지목** |
