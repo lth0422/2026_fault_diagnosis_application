@@ -30,10 +30,20 @@
   - 정상 → BPFO 서명 없어야, IR → BPFI(99Hz), B → BSF(40Hz)·2×BSF 나와야.
 - 실시간 유효대역: 44.1kHz를 4배 복원 시 이론상 여유. 실제 마이크·거리·배경소음 영향은 조건별 평가 필요.
 
+## 그림 (docs/figures/)
+1. **포락선 스펙트럼** — 검출 59.5Hz가 이론 BPFO 61Hz선과 일치, 고조파(119/178/238/298Hz)까지 정렬.
+   ![포락선 스펙트럼](figures/audio_envelope_spectrum.png)
+2. **주파수 커버리지(오디오 vs 240fps 영상)** — 영상 Nyquist 120Hz 경계 위 고조파(▼)는 영상 불가, 오디오는 전대역 커버.
+   ![커버리지](figures/freq_coverage_audio_vs_video.png)
+3. **6204 이론 결함주파수 표** — FTF/BSF/BPFO/BPFI 값과 회전주파수 배수.
+   ![결함주파수 표](figures/bearing_fault_freq_table.png)
+
+> 그림 재생성: `python3 scripts/plot_audio_figures.py test_videos/1217_6204_1200_OR_F_3.mp4 --rpm 1200 --record-fps 240 --balls 8 --ball-d 7.94 --pitch-d 33.5`
+
 ## 다음 단계
 - [ ] 정상/IR/B 파일도 같은 분석 → 클래스별 결함주파수(BPFO/BPFI/BSF) 분별성 확인.
 - [ ] 오디오 단독 분류 성능 vs 영상(DisplacementZ) vs 융합 비교(멀티모달 ablation).
 - [ ] 파일별 export fps 확인 루틴(자동 stretch 보정).
-- [ ] 재현: `scripts/analyze_audio.py` (envelope+stretch 복원).
+- [ ] 재현: `scripts/analyze_audio.py`(수치), `scripts/plot_audio_figures.py`(그림).
 
 > 관련: [enhancement_ideas.md](enhancement_ideas.md) D1, [fps_temporal_resolution_analysis.md](fps_temporal_resolution_analysis.md), [paper_concept.md](paper_concept.md) 델타②.
