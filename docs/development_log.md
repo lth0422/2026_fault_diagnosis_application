@@ -4,6 +4,30 @@
 
 ---
 
+## 2026-08-04 — 음향-영상 멀티모달 문헌 조사 정리
+
+**작업 내용**
+- 라이너 스콜라 음향+영상 멀티모달 결함진단 조사(16편) 정리.
+- 외부 지정 CSV를 `papers/multimodal_paper_list.csv`로 사본 보존(사용자 지정).
+- `docs/multimodal_related_works.md` 신설: 5대 발견 + 근접도별 분류 + Lu 2016 대비표 + novelty + 참고문헌.
+
+**핵심 발견 (novelty 강력)**
+- 카메라+마이크 동시 사용 = 3편뿐(Lu2016[1] 스마트폰, Lu2016[2]·Meng2023[3] 고속카메라).
+- **스마트폰 카메라+마이크 = Lu 2016[1] 단 1편**(FCO=IFCF/IFR 나눗셈, DL·변위스펙트럼 미사용).
+- 음향-진동 DL 융합은 풍부(Wang2020 414회 등)하나 전부 가속도계+마이크, **영상 모달리티 융합은 사실상 0**.
+- 저주파영상+고주파음향 분할융합은 Samuelson2020(SHM)이 최근접, 베어링엔 없음.
+- → "스마트폰 영상(변위)+음향(고주파) 딥러닝 융합 베어링 분류"는 문헌에 없음 = 우리 자리. D1 실측과 맞물림.
+
+**융합 아키텍처 참고**: You2024[8] physics-informed, Lin2024[6] cross-fusion transformer, Wang2020[5] 1D-CNN.
+
+**생성/수정 파일**
+- `docs/multimodal_related_works.md` (신규)
+- `papers/multimodal_paper_list.csv` (사본)
+- `docs/enhancement_ideas.md` (D1 문헌근거 추가)
+- `docs/development_log.md`
+
+---
+
 ## 2026-08-03 — 오디오 모달리티 실측 검증 (D1) ⭐
 
 **작업 내용**
