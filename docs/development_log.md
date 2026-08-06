@@ -4,6 +4,53 @@
 
 ---
 
+## 2026-08-06 — 로터+베어링 멀티모달 데이터 수집 프로토콜 확정
+
+**작업 내용**
+- 사용자 확인: **로터 결함 U(불평형)/M(정렬불량)/L(풀림) 조성 가능 + 베어링×축 복합결함 가능**, RPM 정상상태 다중설정 가능, 베어링 재장착 2~3회 가능.
+- `docs/data_collection_protocol.md` 신설.
+
+**핵심 설계**
+- 물리 강점 매칭: **영상→로터(1×/2×/3×, 저주파)**, **음향→베어링(BPFO/BPFI, 고주파)**, **융합→복합결함**(단일모달 불가 = 융합 정당화).
+- **멀티라벨 2-헤드**: 로터축{없음,U,M,L}×베어링축{H,IR,OR,B}. 복합=off-diagonal.
+- **누수 없는 분할 내장**: 개체 held-out(베어링 재장착, 조건부 필수) + RPM 교차 + take 분리. Macro AUROC/multi-label(E2).
+- **RPM-Nyquist 경계표(6204)**: BPFI ~1455rpm·BPFO ~2360rpm 초과 시 영상 밴드 이탈 → "RPM↑ 영상 상실/음향 유지" 실측 시연 + operating envelope.
+- **Ablation 매트릭스**로 가설 H1(저주파-DL이 베어링 학습?) 직접 검증 — 생존/붕괴 어느 쪽이든 publishable.
+- Phase 1(단일 7조건) → Phase 2(복합) → Phase 3(강건성).
+
+**생성/수정 파일**
+- `docs/data_collection_protocol.md`(신규), `docs/paper_concept.md`(1-B 링크), `docs/development_log.md`
+
+---
+
+## 2026-08-06 — Lu 2016[1] 원문 정독 + Scope 확정(멀티모달 주축) + 음향 그림 3종
+
+**작업 내용**
+- 음향 분석 결과를 그림으로: `scripts/plot_audio_figures.py` 신설(analyze_audio.py 재사용, numpy+matplotlib).
+  - `docs/figures/` 3종: 포락선 스펙트럼(59.5Hz≈BPFO 61Hz), 오디오 vs 240fps 커버리지(Nyquist 120Hz), 6204 결함주파수 표.
+  - `docs/audio_feasibility_analysis.md`에 그림 섹션+재현 커맨드 추가.
+- **Lu 2016[1] 원문 정독**(`papers/...Video Clip.pdf`) → `docs/multimodal_related_works.md` 정정.
+
+**Lu 2016[1] 정독 확정 사실 (기존 추정 정정)**
+- 기기 **iPhone 5s 120fps**(240fps는 미래 언급, 내 표 "240fps"는 오류 정정).
+- 영상=프레임 상관계수→STFT→ridge→**IFR(회전속도)만**(변위X, 결함정보 0). **마커리스**(커플링 자연특징, 종이라벨은 선택).
+- 음향=fast kurtogram→포락선→ridge→IFCF. 융합=**FCO=IFCF/IFR 나눗셈**(eq.9).
+- 출력=**3클래스(OR/IR/정상), 볼 결함 없음**, 규칙기반(이론오더 97~103% 대조). 베어링 608Z.
+- 저자 명시 한계: **120fps→3000rpm Nyquist**(우리 fps분석 외부확증), 무지향성 마이크 소음, **미래과제로 cellphone APP**.
+- 정정: finding#3 "주파수 분할 미개척"은 오류 — Lu가 이미 영상=저주파/음향=고주파. 단 **영상은 결함정보 없는 회전 기준자** → 진짜 공백은 "양 모달 결함정보+DL 융합".
+
+**Scope 결정 ⭐ (사용자 판단 반영)**
+- **헤드라인 기여를 "스마트폰 영상(변위)+음향 딥러닝 융합" 하나로 확정.**
+- 기존 조사 재배치(버리지 않음): fps=동기, 누수=평가프로토콜, 촬영환경=강건성 실험축, **마커리스=de-scope**.
+- Cost 우선순위: ①정상/IR/B 음향 분별성+융합 ablation(코어) ②누수 재평가(축소) ③강건성 1~2개 ④마커리스 접기.
+
+**생성/수정 파일**
+- `scripts/plot_audio_figures.py`(신규), `docs/figures/`(3 PNG, 신규)
+- `docs/audio_feasibility_analysis.md`, `docs/multimodal_related_works.md`, `docs/paper_concept.md`(1-B 신설·1절/4절 갱신)
+- `.gitignore`(__pycache__), `docs/development_log.md`
+
+---
+
 ## 2026-08-04 — 음향-영상 멀티모달 문헌 조사 정리
 
 **작업 내용**
